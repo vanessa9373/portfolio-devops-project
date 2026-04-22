@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: online-boutique
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  namespaceSelector:
+    matchNames:
+      - online-boutique
+  selector:
+    matchLabels: {}
+  endpoints:
+    - port: metrics
+      interval: 30s
+      path: /metrics

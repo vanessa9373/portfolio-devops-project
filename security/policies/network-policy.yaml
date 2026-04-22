@@ -1,0 +1,136 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Network Policies — restrict pod-to-pod communication
+# Only allow traffic that is explicitly needed
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Default deny all ingress in the namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: online-boutique
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+---
+# Allow frontend to receive traffic from the internet (via ALB)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-ingress
+  namespace: online-boutique
+spec:
+  podSelector:
+    matchLabels:
+      app: frontend
+  policyTypes:
+    - Ingress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 8080
+---
+# Allow frontend to call backend services
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-to-backends
+  namespace: online-boutique
+spec:
+  podSelector:
+    matchLabels:
+      app: frontend
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: cartservice
+      ports:
+        - port: 7070
+    - to:
+        - podSelector:
+            matchLabels:
+              app: productcatalogservice
+      ports:
+        - port: 3550
+    - to:
+        - podSelector:
+            matchLabels:
+              app: currencyservice
+      ports:
+        - port: 7000
+    - to:
+        - podSelector:
+            matchLabels:
+              app: checkoutservice
+      ports:
+        - port: 5050
+    - to:
+        - podSelector:
+            matchLabels:
+              app: recommendationservice
+      ports:
+        - port: 8080
+    - to:
+        - podSelector:
+            matchLabels:
+              app: shippingservice
+      ports:
+        - port: 50051
+    - to:
+        - podSelector:
+            matchLabels:
+              app: adservice
+      ports:
+        - port: 9555
+    # Allow DNS
+    - ports:
+        - protocol: UDP
+          port: 53
+---
+# Allow checkoutservice to call payment, shipping, email, cart, currency, catalog
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-checkout-egress
+  namespace: online-boutique
+spec:
+  podSelector:
+    matchLabels:
+      app: checkoutservice
+  policyTypes:
+    - Egress
+  egress:
+    - to: [{ podSelector: { matchLabels: { app: paymentservice }}}]
+      ports: [{ port: 50051 }]
+    - to: [{ podSelector: { matchLabels: { app: shippingservice }}}]
+      ports: [{ port: 50051 }]
+    - to: [{ podSelector: { matchLabels: { app: emailservice }}}]
+      ports: [{ port: 5000 }]
+    - to: [{ podSelector: { matchLabels: { app: cartservice }}}]
+      ports: [{ port: 7070 }]
+    - to: [{ podSelector: { matchLabels: { app: currencyservice }}}]
+      ports: [{ port: 7000 }]
+    - to: [{ podSelector: { matchLabels: { app: productcatalogservice }}}]
+      ports: [{ port: 3550 }]
+    - ports: [{ protocol: UDP, port: 53 }]
+---
+# Allow cartservice to reach Redis
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-cart-to-redis
+  namespace: online-boutique
+spec:
+  podSelector:
+    matchLabels:
+      app: cartservice
+  policyTypes:
+    - Egress
+  egress:
+    - to: [{ podSelector: { matchLabels: { app: redis-cart }}}]
+      ports: [{ port: 6379 }]
+    - ports: [{ protocol: UDP, port: 53 }]

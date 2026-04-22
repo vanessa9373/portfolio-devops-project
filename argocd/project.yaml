@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: portfolio
+  namespace: argocd
+spec:
+  description: Portfolio DevOps Project
+
+  # Only allow deployments from this repo
+  sourceRepos:
+    - https://github.com/vanessa9373/portfolio-devops-project.git
+
+  # Only allow deployments to these namespaces
+  destinations:
+    - namespace: online-boutique
+      server: https://kubernetes.default.svc
+    - namespace: monitoring
+      server: https://kubernetes.default.svc
+
+  # What Kubernetes resources ArgoCD is allowed to manage
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'

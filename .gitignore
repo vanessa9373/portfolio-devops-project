@@ -1,0 +1,47 @@
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+.terraform.lock.hcl
+*.tfvars
+!*.tfvars.example
+
+# AWS credentials - NEVER commit these
+.env
+.env.*
+*.pem
+*.key
+credentials
+~/.aws/
+
+# Docker
+.docker/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+
+# Node
+node_modules/
+npm-debug.log
+
+# Logs
+*.log
+logs/
+
+# Kubernetes secrets
+*-secret.yaml

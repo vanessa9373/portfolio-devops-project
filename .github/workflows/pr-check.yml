@@ -1,0 +1,42 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  pr-validate:
+    name: PR Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check commit message format
+        run: |
+          MSG=$(git log --format=%s -n 1 ${{ github.event.pull_request.head.sha }})
+          echo "Commit message: $MSG"
+          # Enforce conventional commits pattern
+          echo "$MSG" | grep -qE "^(feat|fix|docs|style|refactor|test|chore|ci|build|perf|revert)(\(.+\))?: .+" \
+            || echo "Warning: commit message does not follow conventional commits format"
+
+      - name: Validate Terraform fmt
+        working-directory: terraform
+        run: |
+          terraform init -backend=false -input=false
+          terraform fmt -check -recursive -diff
+
+      - name: Lint YAML files
+        run: |
+          pip install yamllint
+          yamllint -d '{extends: relaxed, rules: {line-length: {max: 160}}}' \
+            kubernetes-manifests/ argocd/ monitoring/
+
+      - name: Security scan — Trivy filesystem
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL
+          exit-code: 1
+          format: table
