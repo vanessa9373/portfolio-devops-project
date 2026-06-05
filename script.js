@@ -26,6 +26,19 @@ document.querySelectorAll('[data-filter]').forEach(btn => {
   });
 });
 
+// Lab filter
+document.querySelectorAll('.lab-filter').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.lab-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filter = btn.dataset.labFilter;
+    document.querySelectorAll('#labs-grid .lab-card').forEach(card => {
+      const tags = card.dataset.labTags || '';
+      card.classList.toggle('hidden', filter !== 'all' && !tags.includes(filter));
+    });
+  });
+});
+
 // SRE filter
 document.querySelectorAll('[data-sre-filter]').forEach(btn => {
   btn.addEventListener('click', () => {
