@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SA · SE · Pre-Sales project portfolio by Vanessa Awo — architecture scenarios, SRE platforms, DevOps pipelines, and pre-sales demos.">
+  <title>SA · SE · Pre-Sales Projects | Vanessa Awo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="https://jenellavan.com" class="nav-logo">
+        <svg class="logo-badge" width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <rect width="28" height="28" rx="6" fill="rgba(139,92,246,0.12)" stroke="rgba(139,92,246,0.28)" stroke-width="1"/>
+          <text x="14" y="19" text-anchor="middle" fill="#8B5CF6" font-size="11" font-weight="800" font-family="monospace">VA</text>
+        </svg>
+        <span class="logo-text">Vanessa Awo</span>
+      </a>
+      <div class="nav-links">
+        <a href="https://jenellavan.com" class="nav-link">Portfolio</a>
+        <a href="#sa-projects" class="nav-link">SA Projects</a>
+        <a href="#sre-projects" class="nav-link">SRE Projects</a>
+        <a href="#demos" class="nav-link">Live Demos</a>
+        <a href="https://vanessa9373.github.io/my-portfolio-projects/" target="_blank" rel="noopener" class="nav-link">Cloud Infra ↗</a>
+        <a href="https://jenellavan.com#contact" class="nav-cta">Hire Me</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-bg"></div>
+    <div class="container hero-content">
+      <div class="hero-role-row">
+        <span class="role-pill role-pill--sa">Solutions Architect</span>
+        <span class="role-pill role-pill--se">Solutions Engineer</span>
+        <span class="role-pill role-pill--ps">Pre-Sales SE</span>
+      </div>
+      <h1 class="hero-title">Architecture Scenarios.<br><span class="gradient-text">Built for Real Deals.</span></h1>
+      <p class="hero-sub">SA architecture deep-dives · SRE platforms · DevOps pipelines · Live demos for pre-sales conversations</p>
+      <div class="hero-actions">
+        <a href="#sa-projects" class="btn-primary">SA Projects</a>
+        <a href="#sre-projects" class="btn-ghost">SRE Projects</a>
+        <a href="#demos" class="btn-ghost btn-ghost--purple">Live Demos</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-num">9</span><span class="stat-label">SA Architecture Scenarios</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><span class="stat-num">9</span><span class="stat-label">SRE Projects</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><span class="stat-num">2</span><span class="stat-label">Live Demo Sites</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><span class="stat-num">AWS</span><span class="stat-label">SAA-C03 Certified</span></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SA PROJECTS -->
+  <section class="section" id="sa-projects">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-badge badge--sa">Solutions Architect</div>
+        <h2 class="section-title">SA Architecture Scenarios</h2>
+        <p class="section-sub">Real-world client scenarios — each built to answer "how would you architect this?" in an SA interview or customer call</p>
+      </div>
+
+      <!-- SA Filter -->
+      <div class="filter-row">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="ecommerce">E-Commerce</button>
+        <button class="filter-btn" data-filter="saas">SaaS</button>
+        <button class="filter-btn" data-filter="fintech">FinTech</button>
+        <button class="filter-btn" data-filter="serverless">Serverless</button>
+        <button class="filter-btn" data-filter="containers">Containers</button>
+        <button class="filter-btn" data-filter="media">Media</button>
+      </div>
+
+      <div class="cards-grid" id="sa-grid">
+
+        <!-- Project 1: Multi-Region E-Commerce -->
+        <div class="proj-card" data-tags="ecommerce">
+          <div class="proj-card-header">
+            <div class="proj-scenario">Retail · Flash Sales · 50K concurrent users</div>
+            <div class="proj-badges">
+              <span class="badge badge--diff-adv">Advanced</span>
+              <span class="badge badge--pci">PCI-DSS</span>
+            </div>
+          </div>
+          <h3 class="proj-title">Multi-Region E-Commerce Platform</h3>
+          <p class="proj-client"><strong>Client:</strong> ShopFast — retail startup losing $140K/outage during flash sales</p>
+          <div class="proj-reqs">
+            <span class="req-chip">99.99% availability</span>
+            <span class="req-chip">RTO &lt;15 min</span>
+            <span class="req-chip">50K concurrent users</span>
+            <span class="req-chip">Multi-region DR</span>
+          </div>
+          <div class="proj-stack">
+            <span class="tag tag-aws">Route 53</span>
+            <span class="tag tag-aws">CloudFront</span>
+            <span class="tag">EKS</span>
+            <span class="tag">Aurora Global</span>
+            <span class="tag">ElastiCache</span>
+            <span class="tag">WAF</span>
+          </div>
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-1-ecommerce-platform" target="_blank" rel="noopener" class="proj-link">
+            View Architecture <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+
+        <!-- Project 2: SaaS Multi-Tenant -->
+        <div class="proj-card" data-tags="saas">
+          <div class="proj-card-header">
+            <div class="proj-scenario">B2B SaaS · Multi-Tenant · Series A</div>
+            <div class="proj-badges">
+              <span class="badge badge--diff-adv">Advanced</span>
+            </div>
+          </div>
+          <h3 class="proj-title">Serverless SaaS Multi-Tenant Platform</h3>
+          <p class="proj-client"><strong>Client:</strong> FormFlow — form-builder scaling from 500 → 50K tenants pre-Series A</p>
+          <div class="proj-reqs">
+            <span class="req-chip">10K req/sec peak</span>
+            <span class="req-chip">Tenant data isolation</span>
+            <span class="req-chip">Tiered billing</span>
+            <span class="req-chip">Zero downtime deploys</span>
+          </div>
+          <div class="proj-stack">
+            <span class="tag tag-aws">Lambda</span>
+            <span class="tag tag-aws">API Gateway</span>
+            <span class="tag">DynamoDB</span>
+            <span class="tag">Cognito</span>
+            <span class="tag">SQS</span>
+            <span class="tag">EventBridge</span>
+          </div>
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-2-saas-platform" target="_blank" rel="noopener" class="proj-link">
+            View Architecture <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+
+        <!-- Project 3: FinTech Data Lake -->
+        <div class="proj-card" data-tags="fintech">
+          <div class="proj-card-header">
+            <div class="proj-scenario">FinTech · Regulated · PCI-DSS · SOC 2</div>
+            <div class="proj-badges">
+              <span class="badge badge--diff-adv">Advanced</span>
+              <span class="badge badge--pci">PCI-DSS</span>
+            </div>
+          </div>
+          <h3 class="proj-title">Secure FinTech Data Lake &amp; Analytics Platform</h3>
+          <p class="proj-client"><strong>Client:</strong> ClearPay — payments FinTech processing $2B/yr, 6 siloed data systems</p>
+          <div class="proj-reqs">
+            <span class="req-chip">500GB/day ingest</span>
+            <span class="req-chip">Row/column security</span>
+            <span class="req-chip">7-year retention</span>
+            <span class="req-chip">Query &lt;30s</span>
+          </div>
+          <div class="proj-stack">
+            <span class="tag tag-aws">S3</span>
+            <span class="tag tag-aws">Glue</span>
+            <span class="tag">Athena</span>
+            <span class="tag">Lake Formation</span>
+            <span class="tag">Kinesis</span>
+            <span class="tag">Macie</span>
+          </div>
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-3-fintech-data-lake" target="_blank" rel="noopener" class="proj-link">
+            View Architecture <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+
+        <!-- Project 4: Media Platform -->
+        <div class="proj-card" data-tags="media">
+          <div class="proj-card-header">
+            <div class="proj-scenario">Media · Video-on-Demand · Global CDN</div>
+            <div class="proj-badges">
+              <span class="badge badge--diff-adv">Advanced</span>
+            </div>
+          </div>
+          <h3 class="proj-title">Global Media Streaming &amp; Content Delivery</h3>
+          <p class="proj-client"><strong>Client:</strong> Video-on-demand media company scaling to global audiences</p>
+          <div class="proj-reqs">
+            <span class="req-chip">Global low latency</span>
+            <span class="req-chip">Adaptive bitrate</span>
+            <span class="req-chip">DRM protection</span>
+            <span class="req-chip">Cost-optimized storage</span>
+          </div>
+          <div class="proj-stack">
+            <span class="tag tag-aws">CloudFront</span>
+            <span class="tag tag-aws">MediaConvert</span>
+            <span class="tag">S3</span>
+            <span class="tag">Elemental</span>
+            <span class="tag">Lambda@Edge</span>
+          </div>
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-4-media-platform" target="_blank" rel="noopener" class="proj-link">
+            View Architecture <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+
+        <!-- Project 4b: PixelVault -->
+        <div class="proj-card" data-tags="media saas">
+          <div class="proj-card-header">
+            <div class="proj-scenario">Social · 10M MAU · Consumer Platform</div>
+            <div class="proj-badges">
+              <span class="badge badge--diff-adv">Advanced</span>
+            </div>
+          </div>
+          <h3 class="proj-title">PixelVault — Global Image Sharing Platform</h3>
+          <p class="proj-client"><strong>Client:</strong> 10M Monthly Active Users image-sharing social platform</p>
+          <div class="proj-reqs">
+            <span class="req-chip">10M MAU</span>
+            <span class="req-chip">Global distribution</span>
+            <span class="req-chip">Image processing pipeline</span>
+            <span class="req-chip">Cost efficiency</span>
+          </div>
+          <div class="proj-stack">
+            <span class="tag tag-aws">CloudFront</span>
+            <span class="tag tag-aws">S3</span>
+            <span class="tag">Lambda</span>
+            <span class="tag">Aurora Serverless</span>
+            <span class="tag">Rekognition</span>
+          </div>
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-6-pixelvault-platform" target="_blank" rel="noopener" class="proj-link">
+            View Architecture <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+
+        <!-- Project 5: Ride-Sharing -->
+        <div class="proj-card" data-tags="saas ecommerce">
+          <div class="proj-card-header">
+            <div class="proj-scenario">Transportation · Real-Time · Marketplace</div>
+            <div class="proj-badges">
+              <span class="badge badge--diff-adv">Advanced</span>
+            </div>
+          </div>
+          <h3 class="proj-title">Real-Time Ride-Sharing &amp; Location Tracking</h3>
+          <p class="proj-client"><strong>Client:</strong> Transportation startup — real-time GPS, driver-rider matching, surge pricing</p>
+          <div class="proj-reqs">
+            <span class="req-chip">Real-time location</span>
+            <span class="req-chip">WebSocket connections</span>
+            <span class="req-chip">Geospatial queries</span>
+            <span class="req-chip">Sub-100ms matching</span>
+          </div>
+          <div class="proj-stack">
+            <span class="tag tag-aws">API Gateway WS</span>
+            <span class="tag tag-aws">Kinesis</span>
+            <span class="tag">OpenSearch</span>
+            <span class="tag">AppSync</span>
+            <span class="tag">SNS</span>
+          </div>
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-5-ridesharing-platform" target="_blank" rel="noopener" class="proj-link">
+            View Architecture <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+
+        <!-- Project 5b: Serverless Event-Driven -->
+        <div class="proj-card" data-tags="serverless">
+          <div class="proj-card-header">
+            <div class="proj-scenario">Serverless · Event-Driven · Entry Level</div>
+            <div class="proj-badges">
+              <span class="badge badge--diff-entry">Entry Level</span>
+            </div>
+          </div>
+          <h3 class="proj-title">Serverless Event-Driven Web Application</h3>
+          <p class="proj-client"><strong>Focus:</strong> Core serverless pattern — API Gateway + Lambda + DynamoDB + S3 static hosting</p>
+          <div class="proj-reqs">
+            <span class="req-chip">Zero servers</span>
+            <span class="req-chip">Auto-scaling</span>
+            <span class="req-chip">Pay-per-use</span>
+            <span class="req-chip">CI/CD pipeline</span>
+          </div>
+          <div class="proj-stack">
+            <span class="tag tag-aws">Lambda</span>
+            <span class="tag tag-aws">API Gateway</span>
+            <span class="tag">DynamoDB</span>
+            <span class="tag">S3</span>
+            <span class="tag">CloudFront</span>
+            <span class="tag">Cognito</span>
+          </div>
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-5-serverless-event-driven" target="_blank" rel="noopener" class="proj-link">
+            View Architecture <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+
+        <!-- Project 6: Containerized Microservices -->
+        <div class="proj-card" data-tags="containers">
+          <div class="proj-card-header">
+            <div class="proj-scenario">Containers · Microservices · Entry Level</div>
+            <div class="proj-badges">
+              <span class="badge badge--diff-entry">Entry Level</span>
+            </div>
+          </div>
+          <h3 class="proj-title">Containerized Microservices Platform on AWS</h3>
+          <p class="proj-client"><strong>Focus:</strong> ECS/EKS microservices — service discovery, load balancing, auto-scaling</p>
+          <div class="proj-reqs">
+            <span class="req-chip">Container orchestration</span>
+            <span class="req-chip">Service mesh</span>
+            <span class="req-chip">Blue-green deploys</span>
+            <span class="req-chip">Zero-downtime</span>
+          </div>
+          <div class="proj-stack">
+            <span class="tag tag-aws">ECS Fargate</span>
+            <span class="tag tag-aws">ECR</span>
+            <span class="tag">ALB</span>
+            <span class="tag">Service Discovery</span>
+            <span class="tag">CodePipeline</span>
+          </div>
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-6-containerized-microservices" target="_blank" rel="noopener" class="proj-link">
+            View Architecture <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+
+        <!-- E-Commerce Full DevOps -->
+        <div class="proj-card" data-tags="ecommerce containers">
+          <div class="proj-card-header">
+            <div class="proj-scenario">DevOps · Platform Engineering · 14 Phases</div>
+            <div class="proj-badges">
+              <span class="badge badge--diff-adv">Advanced</span>
+            </div>
+          </div>
+          <h3 class="proj-title">E-Commerce: Full DevOps Lifecycle on EKS</h3>
+          <p class="proj-client"><strong>Focus:</strong> End-to-end DevOps — EKS + ArgoCD + Istio + Prometheus + Backstage developer portal</p>
+          <div class="proj-reqs">
+            <span class="req-chip">GitOps</span>
+            <span class="req-chip">Service mesh</span>
+            <span class="req-chip">Full observability</span>
+            <span class="req-chip">Developer portal</span>
+          </div>
+          <div class="proj-stack">
+            <span class="tag tag-aws">EKS</span>
+            <span class="tag">ArgoCD</span>
+            <span class="tag">Istio</span>
+            <span class="tag">Prometheus</span>
+            <span class="tag">Grafana</span>
+            <span class="tag">Backstage</span>
+          </div>
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/devops-projects/end-to-end-cicd-eks" target="_blank" rel="noopener" class="proj-link">
+            View Architecture <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SRE PROJECTS -->
+  <section class="section section-alt" id="sre-projects">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-badge badge--sre">Site Reliability Engineering</div>
+        <h2 class="section-title">SRE &amp; DevOps Projects</h2>
+        <p class="section-sub">Production-grade reliability engineering — observability, incident response, GitOps, security, and cost optimization</p>
+      </div>
+
+      <div class="sre-filter-row filter-row">
+        <button class="sre-filter-btn filter-btn active" data-sre-filter="all">All</button>
+        <button class="sre-filter-btn filter-btn" data-sre-filter="observability">Observability</button>
+        <button class="sre-filter-btn filter-btn" data-sre-filter="cicd">CI/CD · GitOps</button>
+        <button class="sre-filter-btn filter-btn" data-sre-filter="incident">Incident Response</button>
+        <button class="sre-filter-btn filter-btn" data-sre-filter="security">Security</button>
+        <button class="sre-filter-btn filter-btn" data-sre-filter="chaos">Chaos</button>
+        <button class="sre-filter-btn filter-btn" data-sre-filter="finops">FinOps</button>
+      </div>
+
+      <div class="sre-grid" id="sre-grid">
+
+        <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-1-kubernetes-observability" target="_blank" rel="noopener" class="sre-card" data-sre-tags="observability">
+          <div class="sre-num">01</div>
+          <div class="sre-body">
+            <div class="sre-badge badge--observability">Observability</div>
+            <h4>SRE Observability &amp; SLO Platform</h4>
+            <p>Prometheus + Grafana + OpenTelemetry on EKS. SLO/SLI dashboards, error budget tracking for 50+ services, PagerDuty integration, distributed tracing.</p>
+            <div class="sre-tags">
+              <span class="tag">Prometheus</span><span class="tag">Grafana</span><span class="tag">OpenTelemetry</span><span class="tag">SLOs</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-2-cicd-gitops" target="_blank" rel="noopener" class="sre-card" data-sre-tags="cicd">
+          <div class="sre-num">02</div>
+          <div class="sre-body">
+            <div class="sre-badge badge--cicd">CI/CD · GitOps</div>
+            <h4>CI/CD GitOps Pipeline</h4>
+            <p>GitHub Actions + ArgoCD GitOps workflow. PR-triggered deployments, environment promotion gates, automatic rollback on SLO breach.</p>
+            <div class="sre-tags">
+              <span class="tag">GitHub Actions</span><span class="tag">ArgoCD</span><span class="tag">GitOps</span><span class="tag">OIDC</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-3-incident-response-slo" target="_blank" rel="noopener" class="sre-card" data-sre-tags="incident">
+          <div class="sre-num">03</div>
+          <div class="sre-body">
+            <div class="sre-badge badge--incident">Incident Response</div>
+            <h4>SLO-Driven Incident Response</h4>
+            <p>Automated incident detection from SLO burn rates. PagerDuty escalation, runbook automation, MTTR tracking, and blameless postmortem process.</p>
+            <div class="sre-tags">
+              <span class="tag">PagerDuty</span><span class="tag">Runbooks</span><span class="tag">SLOs</span><span class="tag">Lambda</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-4-iac-terraform-ansible" target="_blank" rel="noopener" class="sre-card" data-sre-tags="cicd">
+          <div class="sre-num">04</div>
+          <div class="sre-body">
+            <div class="sre-badge badge--cicd">IaC</div>
+            <h4>Infrastructure as Code — Terraform + Ansible</h4>
+            <p>Terraform for cloud provisioning + Ansible for configuration management. Immutable infrastructure patterns, drift detection, compliance scanning.</p>
+            <div class="sre-tags">
+              <span class="tag">Terraform</span><span class="tag">Ansible</span><span class="tag">EC2</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-5-logging-tracing" target="_blank" rel="noopener" class="sre-card" data-sre-tags="observability">
+          <div class="sre-num">05</div>
+          <div class="sre-body">
+            <div class="sre-badge badge--observability">Observability</div>
+            <h4>Centralized Logging &amp; Distributed Tracing</h4>
+            <p>ELK Stack (Elasticsearch, Logstash, Kibana) + OpenTelemetry distributed tracing across microservices. Structured logging, correlation IDs, trace sampling.</p>
+            <div class="sre-tags">
+              <span class="tag">ELK Stack</span><span class="tag">OpenTelemetry</span><span class="tag">Jaeger</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-6-chaos-engineering" target="_blank" rel="noopener" class="sre-card" data-sre-tags="chaos">
+          <div class="sre-num">06</div>
+          <div class="sre-body">
+            <div class="sre-badge badge--chaos">Chaos Engineering</div>
+            <h4>Chaos Engineering &amp; Resilience Testing</h4>
+            <p>AWS FIS + LitmusChaos experiments. 12 failure modes identified, 40% faster recovery time, validated 99.99% availability. Pod-kill, node-drain, network partition.</p>
+            <div class="sre-tags">
+              <span class="tag">AWS FIS</span><span class="tag">LitmusChaos</span><span class="tag">GameDays</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-7-cost-optimization-finops" target="_blank" rel="noopener" class="sre-card" data-sre-tags="finops">
+          <div class="sre-num">07</div>
+          <div class="sre-body">
+            <div class="sre-badge badge--finops">FinOps</div>
+            <h4>Cloud Cost Optimization &amp; FinOps</h4>
+            <p>Right-sizing analysis, Savings Plans modeling, Spot Instance strategy, S3 Intelligent-Tiering, per-team budget alerts. Built for pre-sales cost conversations.</p>
+            <div class="sre-tags">
+              <span class="tag">Cost Explorer</span><span class="tag">Savings Plans</span><span class="tag">Spot</span><span class="tag">Budgets</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-8-gitops-argocd" target="_blank" rel="noopener" class="sre-card" data-sre-tags="cicd">
+          <div class="sre-num">08</div>
+          <div class="sre-body">
+            <div class="sre-badge badge--cicd">GitOps</div>
+            <h4>ArgoCD Progressive Delivery</h4>
+            <p>Canary + blue-green deployments with ArgoCD Rollouts. Automated metric analysis, traffic splitting (5% → 100%), instant rollback on error rate spike.</p>
+            <div class="sre-tags">
+              <span class="tag">ArgoCD</span><span class="tag">Canary</span><span class="tag">Rollouts</span><span class="tag">Prometheus</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-9-kubernetes-security" target="_blank" rel="noopener" class="sre-card" data-sre-tags="security">
+          <div class="sre-num">09</div>
+          <div class="sre-body">
+            <div class="sre-badge badge--security">Security</div>
+            <h4>Kubernetes Security &amp; Cloud Compliance</h4>
+            <p>RBAC, Pod Security Standards, OPA Gatekeeper, network policies, image scanning, GuardDuty + Security Hub for a simulated healthcare client. 100% audit pass.</p>
+            <div class="sre-tags">
+              <span class="tag">RBAC</span><span class="tag">OPA</span><span class="tag">GuardDuty</span><span class="tag">Security Hub</span>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVE DEMOS -->
+  <section class="section" id="demos">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-badge badge--demo">Pre-Sales · Live Demos</div>
+        <h2 class="section-title">Live Demo Sites</h2>
+        <p class="section-sub">Deployed, interactive demos — built specifically to show in prospect conversations and SE interviews</p>
+      </div>
+
+      <div class="demo-grid">
+
+        <div class="demo-card demo-card--hub">
+          <div class="demo-card-top">
+            <div class="demo-live-dot"></div>
+            <span class="demo-live-label">Live</span>
+          </div>
+          <div class="demo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <h3>Cloud Career Hub</h3>
+          <p>Full-stack platform — Firebase Auth, Gemini AI resume writer, role-based access, SA/SE dual resume toggle, admin-protected pages.</p>
+          <div class="demo-stack">
+            <span class="tag">React</span>
+            <span class="tag">Firebase</span>
+            <span class="tag">Gemini AI</span>
+            <span class="tag">RBAC</span>
+          </div>
+          <p class="demo-pitch">"Here's an example of a cloud-native internal tool I built — Firebase auth, AI integration, role-based access, and automated deployment."</p>
+          <div class="demo-actions">
+            <a href="https://denvanholdings-cloud.github.io/sa-career" target="_blank" rel="noopener" class="btn-primary btn-sm">Open Live Demo</a>
+            <a href="https://github.com/denvanholdings-cloud/sa-career" target="_blank" rel="noopener" class="btn-ghost btn-sm">GitHub</a>
+          </div>
+        </div>
+
+        <div class="demo-card demo-card--portfolio">
+          <div class="demo-card-top">
+            <div class="demo-live-dot"></div>
+            <span class="demo-live-label">Live</span>
+          </div>
+          <div class="demo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          </div>
+          <h3>jenellavan.com — Personal Portfolio</h3>
+          <p>Personal portfolio site — dark theme, typed animation, responsive design, blog, filterable projects, and printable SA/SE resume. Custom domain on GitHub Pages.</p>
+          <div class="demo-stack">
+            <span class="tag">HTML/CSS/JS</span>
+            <span class="tag">GitHub Pages</span>
+            <span class="tag">Custom Domain</span>
+          </div>
+          <p class="demo-pitch">"Designed and shipped a polished client-facing site end-to-end — from UX to DNS to deployment pipeline."</p>
+          <div class="demo-actions">
+            <a href="https://jenellavan.com" target="_blank" rel="noopener" class="btn-primary btn-sm">Open Live Site</a>
+            <a href="https://github.com/vanessa9373/portfolio" target="_blank" rel="noopener" class="btn-ghost btn-sm">GitHub</a>
+          </div>
+        </div>
+
+        <div class="demo-card demo-card--infra">
+          <div class="demo-card-top">
+            <div class="demo-live-dot"></div>
+            <span class="demo-live-label">Live</span>
+          </div>
+          <div class="demo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+          <h3>Cloud Infrastructure Portfolio</h3>
+          <p>Dedicated site for the 3 Terraform infrastructure projects and 19 DevOps labs — all source code, architecture diagrams, and deployment guides on GitHub.</p>
+          <div class="demo-stack">
+            <span class="tag">Terraform</span>
+            <span class="tag">AWS</span>
+            <span class="tag">19 Labs</span>
+          </div>
+          <p class="demo-pitch">"All infrastructure is fully reproducible from code — clone the repo, run terraform apply, done."</p>
+          <div class="demo-actions">
+            <a href="https://vanessa9373.github.io/my-portfolio-projects/" target="_blank" rel="noopener" class="btn-primary btn-sm">View Site</a>
+            <a href="https://github.com/vanessa9373/my-portfolio-projects" target="_blank" rel="noopener" class="btn-ghost btn-sm">GitHub</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section section-alt cta-section">
+    <div class="container">
+      <div class="cta-box">
+        <h2>Open to SA · SE · Pre-Sales Roles</h2>
+        <p>Solutions Architect · Solutions Engineer · Pre-Sales SE · Available now · Remote-ready · Open to relocation</p>
+        <div class="cta-actions">
+          <a href="https://jenellavan.com#contact" class="btn-primary">Get in Touch</a>
+          <a href="https://jenellavan.com/resume.html" class="btn-ghost">View Resume</a>
+          <a href="https://www.linkedin.com/in/vanessajen/" target="_blank" rel="noopener" class="btn-ghost">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <svg class="logo-badge" width="22" height="22" viewBox="0 0 28 28" fill="none">
+          <rect width="28" height="28" rx="6" fill="rgba(139,92,246,0.12)" stroke="rgba(139,92,246,0.28)" stroke-width="1"/>
+          <text x="14" y="19" text-anchor="middle" fill="#8B5CF6" font-size="11" font-weight="800" font-family="monospace">VA</text>
+        </svg>
+        <span>Vanessa Awo</span>
+      </div>
+      <p class="footer-copy">&copy; 2026 Vanessa Awo · <a href="https://jenellavan.com">jenellavan.com</a></p>
+      <div class="footer-socials">
+        <a href="https://www.linkedin.com/in/vanessajen/" target="_blank" rel="noopener" aria-label="LinkedIn">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        </a>
+        <a href="https://github.com/vanessa9373" target="_blank" rel="noopener" aria-label="GitHub">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        </a>
+        <a href="mailto:vanessa93730@gmail.com" aria-label="Email">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <button class="back-to-top" id="backToTop" aria-label="Back to top">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+
+  <script src="script.js"></script>
+</body>
+</html>
