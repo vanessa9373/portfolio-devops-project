@@ -1,0 +1,117 @@
+##############################################################################
+# Common Role — Base configuration for all servers
+#
+# Applies to: ALL hosts
+# Tasks: updates, essential packages, timezone, NTP, swap, sysctl tuning
+##############################################################################
+---
+- name: Update system packages
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+    update_cache: true
+  tags: [packages, update]
+
+- name: Install essential packages
+  ansible.builtin.dnf:
+    name:
+      - vim
+      - curl
+      - wget
+      - unzip
+      - git
+      - htop
+      - jq
+      - tree
+      - net-tools
+      - bind-utils
+      - tmux
+      - bash-completion
+      - python3-pip
+    state: present
+  tags: [packages]
+
+- name: Set timezone to UTC
+  ansible.builtin.timezone:
+    name: UTC
+  tags: [system]
+
+- name: Configure NTP (chronyd)
+  ansible.builtin.template:
+    src: chrony.conf.j2
+    dest: /etc/chrony.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart chronyd
+  tags: [ntp]
+
+- name: Ensure chronyd is running
+  ansible.builtin.systemd:
+    name: chronyd
+    state: started
+    enabled: true
+  tags: [ntp]
+
+- name: Set hostname
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname }}"
+  tags: [system]
+
+- name: Configure /etc/hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: "^127\\.0\\.0\\.1"
+    line: "127.0.0.1 localhost {{ inventory_hostname }}"
+  tags: [system]
+
+- name: Set system-wide environment variables
+  ansible.builtin.template:
+    src: environment.j2
+    dest: /etc/profile.d/sre-env.sh
+    owner: root
+    group: root
+    mode: "0644"
+  tags: [system]
+
+- name: Configure sysctl for performance
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    sysctl_set: true
+    state: present
+    reload: true
+  loop:
+    - { key: "net.core.somaxconn", value: "65535" }
+    - { key: "net.ipv4.tcp_max_syn_backlog", value: "65535" }
+    - { key: "net.ipv4.ip_local_port_range", value: "1024 65535" }
+    - { key: "net.ipv4.tcp_tw_reuse", value: "1" }
+    - { key: "vm.swappiness", value: "10" }
+    - { key: "fs.file-max", value: "2097152" }
+  tags: [sysctl, performance]
+
+- name: Set file descriptor limits
+  ansible.builtin.copy:
+    dest: /etc/security/limits.d/99-sre.conf
+    content: |
+      * soft nofile 65535
+      * hard nofile 65535
+      * soft nproc  65535
+      * hard nproc  65535
+    owner: root
+    group: root
+    mode: "0644"
+  tags: [limits]
+
+- name: Create application directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - /opt/app
+    - /var/log/app
+    - /opt/scripts
+  tags: [directories]

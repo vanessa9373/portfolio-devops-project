@@ -1,0 +1,93 @@
+##############################################################################
+# Experiment: Pod Memory Hog
+#
+# Hypothesis: The application handles memory pressure without crashing
+#             uncontrollably. OOMKill is contained to the stressed pod.
+# Validates: Memory limits, OOMKilled recovery, replica availability.
+#
+# Expected Behavior:
+# - Pod memory usage climbs toward the limit
+# - Kubernetes OOMKills the container when limit is exceeded
+# - Pod restarts (restartPolicy: Always)
+# - Other pods remain unaffected
+##############################################################################
+---
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: pod-memory-hog-chaos
+  namespace: sre-demo
+  labels:
+    experiment: pod-memory-hog
+    severity: high
+spec:
+  engineState: active
+  appinfo:
+    appns: sre-demo
+    applabel: app=frontend
+    appkind: deployment
+  chaosServiceAccount: chaos-admin
+  experiments:
+    - name: pod-memory-hog
+      spec:
+        components:
+          env:
+            - name: TOTAL_CHAOS_DURATION
+              value: "60"
+            # Memory to consume in MB
+            - name: MEMORY_CONSUMPTION
+              value: "200"
+            - name: PODS_AFFECTED_PERC
+              value: "50"
+            - name: CONTAINER_RUNTIME
+              value: containerd
+            - name: SOCKET_PATH
+              value: /run/containerd/containerd.sock
+        probe:
+          - name: pod-recovery-check
+            type: cmdProbe
+            mode: Edge
+            cmdProbe/inputs:
+              command: kubectl get pods -n sre-demo -l app=frontend --no-headers | grep -c Running
+              comparator:
+                type: int
+                criteria: ">="
+                value: "1"
+            runProperties:
+              probeTimeout: 30s
+              interval: 10s
+              retry: 5
+---
+# Manual execution alternative
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pod-memory-hog-manual
+  namespace: sre-demo
+  labels:
+    experiment: pod-memory-hog
+    type: manual
+spec:
+  template:
+    spec:
+      serviceAccountName: chaos-admin
+      restartPolicy: Never
+      containers:
+        - name: stress
+          image: containerstack/alpine-stress:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "=== Pod Memory Hog Experiment ==="
+              echo "Consuming 200MB for 60 seconds"
+              echo "Start: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+              stress --vm 1 --vm-bytes 200M --timeout 60s
+              echo "End: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+              echo "=== Experiment Complete ==="
+          resources:
+            requests:
+              memory: 64Mi
+            limits:
+              memory: 256Mi
+  backoffLimit: 0

@@ -1,0 +1,63 @@
+##############################################################################
+# Chaos RBAC — Permissions for chaos experiments
+#
+# The chaos runner needs permissions to manipulate pods, deployments,
+# and other resources in the target namespace.
+#
+# Apply: kubectl apply -f experiments/rbac.yaml
+##############################################################################
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: chaos-admin
+  namespace: sre-demo
+  labels:
+    app.kubernetes.io/part-of: chaos-engineering
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: chaos-admin
+  labels:
+    app.kubernetes.io/part-of: chaos-engineering
+rules:
+  # Pod-level chaos
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "pods/exec", "events", "services", "endpoints", "configmaps", "secrets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete", "deletecollection"]
+  # Deployment/ReplicaSet chaos
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets", "statefulsets", "daemonsets"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  # Node-level chaos
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch", "patch", "update"]
+  # Jobs for chaos runners
+  - apiGroups: ["batch"]
+    resources: ["jobs", "cronjobs"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  # Litmus CRDs
+  - apiGroups: ["litmuschaos.io"]
+    resources: ["chaosengines", "chaosexperiments", "chaosresults"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  # Network policies for network chaos
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["networkpolicies"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: chaos-admin
+  labels:
+    app.kubernetes.io/part-of: chaos-engineering
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: chaos-admin
+subjects:
+  - kind: ServiceAccount
+    name: chaos-admin
+    namespace: sre-demo

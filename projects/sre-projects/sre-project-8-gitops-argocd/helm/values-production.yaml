@@ -1,0 +1,66 @@
+# Production environment overrides
+replicaCount: 5
+environment: production
+
+image:
+  tag: latest
+
+ingress:
+  hosts:
+    - host: app.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: app-tls
+      hosts:
+        - app.example.com
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 5
+  maxReplicas: 20
+  targetCPUUtilization: 60
+  targetMemoryUtilization: 75
+
+# Production uses full canary with analysis
+rollout:
+  enabled: true
+  strategy: canary
+  canary:
+    steps:
+      - setWeight: 5
+      - pause: { duration: 2m }
+      - setWeight: 20
+      - pause: { duration: 3m }
+      - setWeight: 50
+      - pause: { duration: 5m }
+      - setWeight: 80
+      - pause: { duration: 3m }
+      - setWeight: 100
+
+pdb:
+  enabled: true
+  minAvailable: "60%"
+
+# Spread pods across availability zones
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - sre-platform
+          topologyKey: topology.kubernetes.io/zone

@@ -1,0 +1,127 @@
+##############################################################################
+# Experiment: Node Drain
+#
+# Hypothesis: The application survives a node being drained (maintenance).
+# Validates: PodDisruptionBudgets, pod anti-affinity, multi-node scheduling.
+#
+# Expected Behavior:
+# - Pods on the drained node are gracefully evicted
+# - Kubernetes reschedules them to other available nodes
+# - PDB ensures minimum availability is maintained during drain
+# - Users experience zero downtime (if pods spread across nodes)
+##############################################################################
+---
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: node-drain-chaos
+  namespace: sre-demo
+  labels:
+    experiment: node-drain
+    severity: high
+spec:
+  engineState: active
+  appinfo:
+    appns: sre-demo
+    applabel: app=frontend
+    appkind: deployment
+  chaosServiceAccount: chaos-admin
+  experiments:
+    - name: node-drain
+      spec:
+        components:
+          env:
+            - name: TOTAL_CHAOS_DURATION
+              value: "90"
+            # Target a specific node (or leave empty for random)
+            - name: TARGET_NODE
+              value: ""
+            - name: APP_NAMESPACE
+              value: sre-demo
+            - name: APP_LABEL
+              value: app=frontend
+        probe:
+          - name: app-availability
+            type: httpProbe
+            mode: Continuous
+            httpProbe/inputs:
+              url: http://frontend.sre-demo.svc.cluster.local:8080/
+              insecureSkipVerify: true
+              method:
+                get:
+                  criteria: ==
+                  responseCode: "200"
+            runProperties:
+              probeTimeout: 10s
+              interval: 5s
+              retry: 5
+---
+# Manual execution alternative
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: node-drain-manual
+  namespace: sre-demo
+  labels:
+    experiment: node-drain
+    type: manual
+spec:
+  template:
+    spec:
+      serviceAccountName: chaos-admin
+      restartPolicy: Never
+      containers:
+        - name: chaos-runner
+          image: bitnami/kubectl:latest
+          command:
+            - /bin/bash
+            - -c
+            - |
+              echo "=== Node Drain Experiment ==="
+              echo ""
+
+              # Pick a worker node (not the server/control-plane)
+              NODE=$(kubectl get nodes --no-headers | grep -v "control-plane" | head -1 | awk '{print $1}')
+
+              if [ -z "$NODE" ]; then
+                echo "[ERROR] No worker nodes found"
+                exit 1
+              fi
+
+              echo "[INFO] Target node: $NODE"
+              echo "[INFO] Pods on this node:"
+              kubectl get pods -n sre-demo -o wide --field-selector spec.nodeName="$NODE"
+              echo ""
+
+              # Cordon the node (prevent new scheduling)
+              echo "[ACTION] Cordoning node $NODE..."
+              kubectl cordon "$NODE"
+
+              # Drain with grace period
+              echo "[ACTION] Draining node $NODE (grace period: 30s)..."
+              kubectl drain "$NODE" \
+                --ignore-daemonsets \
+                --delete-emptydir-data \
+                --grace-period=30 \
+                --timeout=90s \
+                --force 2>&1 || true
+
+              echo ""
+              echo "[STATUS] Pods after drain:"
+              kubectl get pods -n sre-demo -o wide
+              echo ""
+
+              # Wait and observe
+              echo "[INFO] Node drained. Waiting 60s to observe recovery..."
+              sleep 60
+
+              # Uncordon the node
+              echo "[ACTION] Uncordoning node $NODE..."
+              kubectl uncordon "$NODE"
+
+              echo ""
+              echo "[STATUS] Final pod state:"
+              kubectl get pods -n sre-demo -o wide
+              echo ""
+              echo "=== Experiment Complete ==="
+  backoffLimit: 0

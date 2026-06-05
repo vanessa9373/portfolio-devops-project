@@ -1,0 +1,68 @@
+##############################################################################
+# Resource Quotas — Enforce per-namespace resource limits to prevent
+# cost overruns from unconstrained deployments.
+##############################################################################
+apiVersion: v1
+kind: List
+items:
+  # ── Production Namespace ──────────────────────────────────────────────
+  - apiVersion: v1
+    kind: ResourceQuota
+    metadata:
+      name: production-quota
+      namespace: production
+      labels:
+        purpose: cost-governance
+    spec:
+      hard:
+        # Compute limits
+        requests.cpu: "20"
+        requests.memory: 40Gi
+        limits.cpu: "40"
+        limits.memory: 80Gi
+        # Object count limits
+        pods: "100"
+        services: "20"
+        persistentvolumeclaims: "30"
+        services.loadbalancers: "5"
+        services.nodeports: "10"
+
+  # ── Staging Namespace ─────────────────────────────────────────────────
+  - apiVersion: v1
+    kind: ResourceQuota
+    metadata:
+      name: staging-quota
+      namespace: staging
+      labels:
+        purpose: cost-governance
+    spec:
+      hard:
+        requests.cpu: "10"
+        requests.memory: 20Gi
+        limits.cpu: "20"
+        limits.memory: 40Gi
+        pods: "50"
+        services: "10"
+        persistentvolumeclaims: "15"
+        services.loadbalancers: "2"
+        services.nodeports: "5"
+
+  # ── Development Namespace ─────────────────────────────────────────────
+  - apiVersion: v1
+    kind: ResourceQuota
+    metadata:
+      name: dev-quota
+      namespace: development
+      labels:
+        purpose: cost-governance
+    spec:
+      hard:
+        requests.cpu: "5"
+        requests.memory: 10Gi
+        limits.cpu: "10"
+        limits.memory: 20Gi
+        pods: "30"
+        services: "10"
+        persistentvolumeclaims: "10"
+        services.loadbalancers: "1"
+        services.nodeports: "3"

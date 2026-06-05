@@ -1,0 +1,99 @@
+##############################################################################
+# Experiment: Pod CPU Hog
+#
+# Hypothesis: The application handles CPU saturation gracefully.
+# Validates: CPU limits, HPA scaling, request latency under load.
+#
+# Expected Behavior:
+# - Pod CPU usage spikes to limit
+# - If HPA is configured, new replicas are created
+# - Existing requests may slow down but shouldn't fail
+# - CPU throttling kicks in at the container limit
+##############################################################################
+---
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: pod-cpu-hog-chaos
+  namespace: sre-demo
+  labels:
+    experiment: pod-cpu-hog
+    severity: medium
+spec:
+  engineState: active
+  appinfo:
+    appns: sre-demo
+    applabel: app=frontend
+    appkind: deployment
+  chaosServiceAccount: chaos-admin
+  experiments:
+    - name: pod-cpu-hog
+      spec:
+        components:
+          env:
+            - name: TOTAL_CHAOS_DURATION
+              value: "120"
+            # Number of CPU cores to stress
+            - name: CPU_CORES
+              value: "1"
+            # Percentage of CPU to consume per core
+            - name: CPU_LOAD
+              value: "100"
+            - name: PODS_AFFECTED_PERC
+              value: "100"
+            - name: CONTAINER_RUNTIME
+              value: containerd
+            - name: SOCKET_PATH
+              value: /run/containerd/containerd.sock
+        probe:
+          - name: latency-check
+            type: httpProbe
+            mode: Continuous
+            httpProbe/inputs:
+              url: http://frontend.sre-demo.svc.cluster.local:8080/
+              insecureSkipVerify: true
+              method:
+                get:
+                  criteria: ==
+                  responseCode: "200"
+              responseTimeout: 5000
+            runProperties:
+              probeTimeout: 10s
+              interval: 5s
+              retry: 3
+---
+# Manual execution alternative
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pod-cpu-hog-manual
+  namespace: sre-demo
+  labels:
+    experiment: pod-cpu-hog
+    type: manual
+spec:
+  template:
+    spec:
+      serviceAccountName: chaos-admin
+      restartPolicy: Never
+      containers:
+        - name: stress
+          image: containerstack/alpine-stress:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "=== Pod CPU Hog Experiment ==="
+              echo "Stressing 1 CPU core for 120 seconds"
+              echo "Start: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+              stress --cpu 1 --timeout 120s
+              echo "End: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+              echo "=== Experiment Complete ==="
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: "1"
+              memory: 128Mi
+  backoffLimit: 0

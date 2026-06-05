@@ -1,0 +1,144 @@
+##############################################################################
+# Steady-State Hypothesis Validation
+#
+# These checks define "normal" system behavior. Run BEFORE and AFTER each
+# chaos experiment to verify the system returns to steady state.
+#
+# Chaos Engineering Method:
+# 1. Define steady state (this file)
+# 2. Hypothesize that steady state continues during chaos
+# 3. Introduce chaos (experiments)
+# 4. Verify steady state is maintained (run checks again)
+#
+# Usage:
+#   kubectl apply -f steady-state/steady-state-checks.yaml
+#   kubectl logs job/steady-state-check -n sre-demo
+##############################################################################
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: steady-state-check
+  namespace: sre-demo
+  labels:
+    type: steady-state-validation
+spec:
+  template:
+    spec:
+      serviceAccountName: chaos-admin
+      restartPolicy: Never
+      containers:
+        - name: checker
+          image: bitnami/kubectl:latest
+          command:
+            - /bin/bash
+            - -c
+            - |
+              #!/bin/bash
+              set -euo pipefail
+
+              PASS=0
+              FAIL=0
+              TOTAL=0
+
+              check() {
+                local name="$1"
+                local result="$2"
+                local expected="$3"
+                TOTAL=$((TOTAL + 1))
+
+                if [ "$result" = "$expected" ]; then
+                  echo "  [PASS] $name"
+                  PASS=$((PASS + 1))
+                else
+                  echo "  [FAIL] $name (got: $result, expected: $expected)"
+                  FAIL=$((FAIL + 1))
+                fi
+              }
+
+              echo "╔══════════════════════════════════════════╗"
+              echo "║  Steady-State Hypothesis Validation      ║"
+              echo "║  Time: $(date -u '+%Y-%m-%d %H:%M:%S UTC')       ║"
+              echo "╚══════════════════════════════════════════╝"
+              echo ""
+
+              # ── 1. All deployments have desired replicas ─────────────
+              echo "═══ 1. Deployment Health ═══"
+
+              for DEPLOY in $(kubectl get deployments -n sre-demo -o name 2>/dev/null); do
+                NAME=$(echo "$DEPLOY" | cut -d/ -f2)
+                DESIRED=$(kubectl get "$DEPLOY" -n sre-demo -o jsonpath='{.spec.replicas}')
+                READY=$(kubectl get "$DEPLOY" -n sre-demo -o jsonpath='{.status.readyReplicas}')
+                READY=${READY:-0}
+                check "Deployment $NAME: $READY/$DESIRED ready" "$READY" "$DESIRED"
+              done
+              echo ""
+
+              # ── 2. No pods in CrashLoopBackOff ───────────────────────
+              echo "═══ 2. Pod Stability ═══"
+
+              CRASH_PODS=$(kubectl get pods -n sre-demo --no-headers 2>/dev/null | grep -c "CrashLoopBackOff" || echo "0")
+              check "No CrashLoopBackOff pods" "$CRASH_PODS" "0"
+
+              ERROR_PODS=$(kubectl get pods -n sre-demo --no-headers 2>/dev/null | grep -c "Error" || echo "0")
+              check "No Error pods" "$ERROR_PODS" "0"
+
+              PENDING_PODS=$(kubectl get pods -n sre-demo --no-headers 2>/dev/null | grep -c "Pending" || echo "0")
+              check "No Pending pods" "$PENDING_PODS" "0"
+              echo ""
+
+              # ── 3. Services have endpoints ───────────────────────────
+              echo "═══ 3. Service Endpoints ═══"
+
+              for SVC in $(kubectl get svc -n sre-demo -o name 2>/dev/null); do
+                NAME=$(echo "$SVC" | cut -d/ -f2)
+                ENDPOINTS=$(kubectl get endpoints "$NAME" -n sre-demo -o jsonpath='{.subsets[*].addresses}' 2>/dev/null)
+                if [ -n "$ENDPOINTS" ]; then
+                  check "Service $NAME has endpoints" "true" "true"
+                else
+                  check "Service $NAME has endpoints" "false" "true"
+                fi
+              done
+              echo ""
+
+              # ── 4. Nodes are Ready ───────────────────────────────────
+              echo "═══ 4. Node Health ═══"
+
+              NOT_READY=$(kubectl get nodes --no-headers | grep -cv "Ready" || echo "0")
+              check "All nodes are Ready" "$NOT_READY" "0"
+
+              TOTAL_NODES=$(kubectl get nodes --no-headers | wc -l | tr -d ' ')
+              check "Node count >= 2" "$([ "$TOTAL_NODES" -ge 2 ] && echo "true" || echo "false")" "true"
+              echo ""
+
+              # ── 5. Resource utilization within bounds ─────────────────
+              echo "═══ 5. Resource Utilization ═══"
+
+              # Check if any node is over 90% CPU
+              HIGH_CPU_NODES=$(kubectl top nodes --no-headers 2>/dev/null | awk '{gsub(/%/,"",$3); if($3 > 90) print $1}' | wc -l | tr -d ' ')
+              check "No nodes over 90% CPU" "$HIGH_CPU_NODES" "0"
+
+              # Check if any node is over 90% memory
+              HIGH_MEM_NODES=$(kubectl top nodes --no-headers 2>/dev/null | awk '{gsub(/%/,"",$5); if($5 > 90) print $1}' | wc -l | tr -d ' ')
+              check "No nodes over 90% memory" "$HIGH_MEM_NODES" "0"
+              echo ""
+
+              # ── 6. Recent events (no warnings) ──────────────────────
+              echo "═══ 6. Recent Events ═══"
+
+              WARNING_EVENTS=$(kubectl get events -n sre-demo --field-selector type=Warning --no-headers 2>/dev/null | wc -l | tr -d ' ')
+              check "Warning events < 10" "$([ "$WARNING_EVENTS" -lt 10 ] && echo "true" || echo "false")" "true"
+              echo ""
+
+              # ── Summary ──────────────────────────────────────────────
+              echo "╔══════════════════════════════════════════╗"
+              echo "║  RESULTS: $PASS/$TOTAL passed, $FAIL failed"
+              if [ "$FAIL" -eq 0 ]; then
+                echo "║  STATUS: STEADY STATE CONFIRMED ✓"
+              else
+                echo "║  STATUS: STEADY STATE VIOLATED ✗"
+              fi
+              echo "╚══════════════════════════════════════════╝"
+
+              exit $FAIL
+  backoffLimit: 0

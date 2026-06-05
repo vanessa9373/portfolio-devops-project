@@ -1,0 +1,10 @@
+---
+- name: Restart sshd
+  ansible.builtin.systemd:
+    name: sshd
+    state: restarted
+
+- name: Restart auditd
+  ansible.builtin.command:
+    cmd: service auditd restart
+  changed_when: true

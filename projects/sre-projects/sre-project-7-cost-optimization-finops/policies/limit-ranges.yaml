@@ -1,0 +1,100 @@
+##############################################################################
+# LimitRange — Set default resource requests/limits so every pod has
+# constraints, even if developers forget to specify them.
+# Prevents "noisy neighbor" problems and runaway resource consumption.
+##############################################################################
+apiVersion: v1
+kind: List
+items:
+  # ── Production LimitRange ─────────────────────────────────────────────
+  - apiVersion: v1
+    kind: LimitRange
+    metadata:
+      name: production-limits
+      namespace: production
+      labels:
+        purpose: cost-governance
+    spec:
+      limits:
+        - type: Container
+          default:
+            cpu: 500m
+            memory: 512Mi
+          defaultRequest:
+            cpu: 100m
+            memory: 128Mi
+          max:
+            cpu: "4"
+            memory: 8Gi
+          min:
+            cpu: 50m
+            memory: 64Mi
+
+        - type: Pod
+          max:
+            cpu: "8"
+            memory: 16Gi
+
+        - type: PersistentVolumeClaim
+          max:
+            storage: 100Gi
+          min:
+            storage: 1Gi
+
+  # ── Staging LimitRange ────────────────────────────────────────────────
+  - apiVersion: v1
+    kind: LimitRange
+    metadata:
+      name: staging-limits
+      namespace: staging
+      labels:
+        purpose: cost-governance
+    spec:
+      limits:
+        - type: Container
+          default:
+            cpu: 250m
+            memory: 256Mi
+          defaultRequest:
+            cpu: 50m
+            memory: 64Mi
+          max:
+            cpu: "2"
+            memory: 4Gi
+          min:
+            cpu: 25m
+            memory: 32Mi
+
+        - type: Pod
+          max:
+            cpu: "4"
+            memory: 8Gi
+
+  # ── Development LimitRange ────────────────────────────────────────────
+  - apiVersion: v1
+    kind: LimitRange
+    metadata:
+      name: dev-limits
+      namespace: development
+      labels:
+        purpose: cost-governance
+    spec:
+      limits:
+        - type: Container
+          default:
+            cpu: 100m
+            memory: 128Mi
+          defaultRequest:
+            cpu: 25m
+            memory: 32Mi
+          max:
+            cpu: "1"
+            memory: 2Gi
+          min:
+            cpu: 10m
+            memory: 16Mi
+
+        - type: Pod
+          max:
+            cpu: "2"
+            memory: 4Gi

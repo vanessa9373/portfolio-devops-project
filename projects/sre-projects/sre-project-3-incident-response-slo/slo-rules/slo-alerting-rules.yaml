@@ -1,0 +1,184 @@
+##############################################################################
+# SLO Alerting Rules — Multi-Window, Multi-Burn-Rate Alerts
+#
+# Based on Google SRE Workbook Chapter 5: Alerting on SLOs
+# https://sre.google/workbook/alerting-on-slos/
+#
+# Strategy: Use multiple time windows and burn rates to detect both
+# fast-burning incidents (page immediately) and slow-burning issues (ticket).
+#
+# SLO Target: 99.9% availability (43.8 minutes downtime/month)
+#
+# Apply with: kubectl apply -f slo-alerting-rules.yaml
+##############################################################################
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: slo-alerting-rules
+  namespace: monitoring
+  labels:
+    release: prometheus
+    app: kube-prometheus-stack
+spec:
+  groups:
+    # ── Critical: Fast Burn (Page) ──────────────────────────────────────
+    # Detects rapid error budget consumption. Will exhaust budget in <2 hours.
+    # Burn rate 14.4x over 1h window, confirmed by 5m window.
+    - name: slo.alerts.fast_burn
+      rules:
+        - alert: SLOAvailabilityBurnRateCritical
+          expr: |
+            slo:error_budget:burn_rate_1h > 14.4
+            and
+            (
+              (1 - sli:availability:ratio_rate5m) / (1 - 0.999)
+            ) > 14.4
+          for: 2m
+          labels:
+            severity: critical
+            slo: availability
+            team: platform
+          annotations:
+            summary: "SLO burn rate critical — budget exhaustion in <2 hours"
+            description: |
+              Service {{ $labels.service }} in namespace {{ $labels.namespace }}
+              is burning error budget at {{ printf "%.1f" $value }}x the allowed rate.
+              At this rate, the entire 30-day error budget will be exhausted in less
+              than 2 hours.
+            runbook_url: "https://github.com/vanessa9373/Courses/blob/sre-eng/sre-Projects/project3/runbooks/high-error-rate.md"
+            action: "PAGE — Investigate immediately. Check pod logs, recent deployments, and upstream dependencies."
+
+    # ── Warning: Medium Burn (Page) ─────────────────────────────────────
+    # Detects moderate error budget consumption. Will exhaust budget in <8 hours.
+    # Burn rate 6x over 6h window, confirmed by 30m window.
+    - name: slo.alerts.medium_burn
+      rules:
+        - alert: SLOAvailabilityBurnRateHigh
+          expr: |
+            slo:error_budget:burn_rate_6h > 6
+            and
+            (
+              (1 - sli:availability:ratio_rate1h) / (1 - 0.999)
+            ) > 6
+          for: 5m
+          labels:
+            severity: warning
+            slo: availability
+            team: platform
+          annotations:
+            summary: "SLO burn rate high — budget exhaustion in <8 hours"
+            description: |
+              Service {{ $labels.service }} in namespace {{ $labels.namespace }}
+              is burning error budget at {{ printf "%.1f" $value }}x the allowed rate.
+              At this rate, the 30-day error budget will be exhausted within 8 hours.
+            runbook_url: "https://github.com/vanessa9373/Courses/blob/sre-eng/sre-Projects/project3/runbooks/high-error-rate.md"
+            action: "PAGE — Investigate within 30 minutes. Check for degraded dependencies or partial outages."
+
+    # ── Info: Slow Burn (Ticket) ────────────────────────────────────────
+    # Detects slow but steady error budget consumption. Will exhaust in <3 days.
+    # Burn rate 1x over 1d window, confirmed by 6h window.
+    - name: slo.alerts.slow_burn
+      rules:
+        - alert: SLOAvailabilityBurnRateElevated
+          expr: |
+            slo:error_budget:burn_rate_1d > 1
+            and
+            slo:error_budget:burn_rate_6h > 1
+          for: 30m
+          labels:
+            severity: info
+            slo: availability
+            team: platform
+          annotations:
+            summary: "SLO burn rate elevated — investigate within business hours"
+            description: |
+              Service {{ $labels.service }} in namespace {{ $labels.namespace }}
+              is consuming error budget faster than sustainable.
+              Current 1-day burn rate: {{ printf "%.1f" $value }}x.
+            runbook_url: "https://github.com/vanessa9373/Courses/blob/sre-eng/sre-Projects/project3/runbooks/error-budget-exhaustion.md"
+            action: "TICKET — Investigate during business hours. Review error logs and trends."
+
+    # ── Error Budget Exhaustion ─────────────────────────────────────────
+    # Fires when the monthly error budget is fully consumed.
+    - name: slo.alerts.budget_exhausted
+      rules:
+        - alert: SLOErrorBudgetExhausted
+          expr: |
+            slo:error_budget:remaining_ratio <= 0
+          for: 5m
+          labels:
+            severity: critical
+            slo: availability
+            team: platform
+          annotations:
+            summary: "Error budget exhausted — SLO breach"
+            description: |
+              Service {{ $labels.service }} in namespace {{ $labels.namespace }}
+              has consumed 100% of its 30-day error budget.
+              Remaining budget: {{ printf "%.2f" $value }}%.
+              Consider freezing non-critical changes until budget recovers.
+            runbook_url: "https://github.com/vanessa9373/Courses/blob/sre-eng/sre-Projects/project3/runbooks/error-budget-exhaustion.md"
+            action: "FREEZE deployments. Initiate error budget policy review."
+
+        - alert: SLOErrorBudgetLow
+          expr: |
+            slo:error_budget:remaining_ratio > 0
+            and
+            slo:error_budget:remaining_ratio < 0.25
+          for: 15m
+          labels:
+            severity: warning
+            slo: availability
+            team: platform
+          annotations:
+            summary: "Error budget below 25% — caution"
+            description: |
+              Service {{ $labels.service }} in namespace {{ $labels.namespace }}
+              has consumed over 75% of its 30-day error budget.
+              Remaining: {{ printf "%.1f" (mul $value 100) }}%.
+            action: "Review recent incidents. Consider slowing deployments."
+
+    # ── Latency SLO Alerts ──────────────────────────────────────────────
+    # SLO: 99% of requests served within 300ms.
+    - name: slo.alerts.latency
+      rules:
+        - alert: SLOLatencyBurnRateCritical
+          expr: |
+            (
+              (1 - sli:latency:ratio_rate1h) / (1 - 0.99)
+            ) > 14.4
+            and
+            (
+              (1 - sli:latency:ratio_rate5m) / (1 - 0.99)
+            ) > 14.4
+          for: 2m
+          labels:
+            severity: critical
+            slo: latency
+            team: platform
+          annotations:
+            summary: "Latency SLO burn rate critical"
+            description: |
+              Service {{ $labels.service }} latency SLO is being burned at
+              {{ printf "%.1f" $value }}x the allowed rate. Too many requests
+              are exceeding the 300ms threshold.
+            runbook_url: "https://github.com/vanessa9373/Courses/blob/sre-eng/sre-Projects/project3/runbooks/latency-spike.md"
+            action: "PAGE — Check for resource saturation, upstream slowdowns, or database issues."
+
+        - alert: SLOLatencyBurnRateHigh
+          expr: |
+            (
+              (1 - sli:latency:ratio_rate1d) / (1 - 0.99)
+            ) > 1
+          for: 30m
+          labels:
+            severity: warning
+            slo: latency
+            team: platform
+          annotations:
+            summary: "Latency SLO degraded"
+            description: |
+              Service {{ $labels.service }} is consistently missing latency targets.
+              Consider scaling up or investigating slow dependencies.
+            runbook_url: "https://github.com/vanessa9373/Courses/blob/sre-eng/sre-Projects/project3/runbooks/latency-spike.md"
+            action: "TICKET — Profile request paths, check connection pools and caches."

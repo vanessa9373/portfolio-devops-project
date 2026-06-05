@@ -1,0 +1,222 @@
+##############################################################################
+# Jaeger — Distributed Trace Visualization
+#
+# All-in-one deployment with Elasticsearch backend for trace storage.
+# Access UI via: kubectl port-forward -n tracing svc/jaeger-query 16686:16686
+#
+# Components:
+# - Collector: Receives spans from OTel Collector
+# - Query: Serves the Jaeger UI and API
+# - Elasticsearch: Stores trace data (shared with logging stack)
+#
+# Deploy: kubectl apply -f tracing/jaeger/
+##############################################################################
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaeger
+  namespace: tracing
+  labels:
+    app: jaeger
+    component: all-in-one
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jaeger
+  template:
+    metadata:
+      labels:
+        app: jaeger
+        component: all-in-one
+    spec:
+      containers:
+        - name: jaeger
+          image: jaegertracing/all-in-one:1.54
+          env:
+            # Use Elasticsearch as storage backend
+            - name: SPAN_STORAGE_TYPE
+              value: elasticsearch
+            - name: ES_SERVER_URLS
+              value: "http://elasticsearch.logging.svc.cluster.local:9200"
+            - name: ES_INDEX_PREFIX
+              value: jaeger
+            - name: ES_TAGS_AS_FIELDS_ALL
+              value: "true"
+
+            # Collector settings
+            - name: COLLECTOR_OTLP_ENABLED
+              value: "true"
+            - name: COLLECTOR_ZIPKIN_HOST_PORT
+              value: ":9411"
+
+            # Query/UI settings
+            - name: QUERY_BASE_PATH
+              value: "/"
+            - name: QUERY_MAX_CLOCK_SKEW_ADJUSTMENT
+              value: "5s"
+
+            # Sampling configuration
+            - name: SAMPLING_STRATEGIES_FILE
+              value: /etc/jaeger/sampling.json
+
+          ports:
+            - containerPort: 5775    # Zipkin compact (deprecated)
+              name: zipkin-compact
+              protocol: UDP
+            - containerPort: 6831    # Jaeger compact
+              name: jaeger-compact
+              protocol: UDP
+            - containerPort: 6832    # Jaeger binary
+              name: jaeger-binary
+              protocol: UDP
+            - containerPort: 5778    # Sampling config
+              name: config
+            - containerPort: 16686   # Query/UI
+              name: query
+            - containerPort: 14268   # Collector HTTP
+              name: collector-http
+            - containerPort: 14250   # Collector gRPC
+              name: collector-grpc
+            - containerPort: 4317    # OTLP gRPC
+              name: otlp-grpc
+            - containerPort: 4318    # OTLP HTTP
+              name: otlp-http
+            - containerPort: 14269   # Admin/health
+              name: admin
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+          volumeMounts:
+            - name: sampling-config
+              mountPath: /etc/jaeger/
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 14269
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 14269
+            initialDelaySeconds: 30
+            periodSeconds: 30
+
+      volumes:
+        - name: sampling-config
+          configMap:
+            name: jaeger-sampling
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jaeger-sampling
+  namespace: tracing
+  labels:
+    app: jaeger
+data:
+  sampling.json: |
+    {
+      "service_strategies": [
+        {
+          "service": "frontend",
+          "type": "probabilistic",
+          "param": 1.0
+        },
+        {
+          "service": "checkout",
+          "type": "probabilistic",
+          "param": 1.0
+        }
+      ],
+      "default_strategy": {
+        "type": "probabilistic",
+        "param": 0.5
+      }
+    }
+---
+# Jaeger Query Service (UI)
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-query
+  namespace: tracing
+  labels:
+    app: jaeger
+    component: query
+spec:
+  type: ClusterIP
+  ports:
+    - port: 16686
+      targetPort: 16686
+      name: query
+    - port: 16687
+      targetPort: 16687
+      name: grpc-query
+  selector:
+    app: jaeger
+---
+# Jaeger Collector Service (receives spans)
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-collector
+  namespace: tracing
+  labels:
+    app: jaeger
+    component: collector
+spec:
+  type: ClusterIP
+  ports:
+    - port: 14268
+      targetPort: 14268
+      name: http
+    - port: 14250
+      targetPort: 14250
+      name: grpc
+    - port: 4317
+      targetPort: 4317
+      name: otlp-grpc
+    - port: 4318
+      targetPort: 4318
+      name: otlp-http
+    - port: 9411
+      targetPort: 9411
+      name: zipkin
+  selector:
+    app: jaeger
+---
+# Jaeger Agent Service (UDP, for sidecars)
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-agent
+  namespace: tracing
+  labels:
+    app: jaeger
+    component: agent
+spec:
+  type: ClusterIP
+  ports:
+    - port: 6831
+      targetPort: 6831
+      name: compact
+      protocol: UDP
+    - port: 6832
+      targetPort: 6832
+      name: binary
+      protocol: UDP
+    - port: 5778
+      targetPort: 5778
+      name: config
+  selector:
+    app: jaeger

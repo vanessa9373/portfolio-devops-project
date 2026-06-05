@@ -1,0 +1,100 @@
+##############################################################################
+# ArgoCD Installation — Namespace, core components, and configuration
+#
+# Installs ArgoCD with:
+# - SSO-ready configuration
+# - Repository credentials for GitOps repo
+# - Notification triggers for Slack/email
+# - Resource tracking with server-side diff
+##############################################################################
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: argocd
+  labels:
+    app.kubernetes.io/part-of: argocd
+---
+# ArgoCD ConfigMap — Core settings
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cm
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: argocd
+data:
+  # Git repository URL for GitOps manifests
+  url: https://github.com/example/gitops-manifests.git
+
+  # Enable status badge
+  statusbadge.enabled: "true"
+
+  # Application health assessments
+  resource.customizations.health.argoproj.io_Rollout: |
+    hs = {}
+    if obj.status ~= nil then
+      if obj.status.currentStepIndex ~= nil then
+        hs.status = "Progressing"
+        hs.message = "Rollout in progress: step " .. obj.status.currentStepIndex
+      end
+      if obj.status.phase == "Healthy" then
+        hs.status = "Healthy"
+        hs.message = "Rollout complete"
+      elseif obj.status.phase == "Degraded" then
+        hs.status = "Degraded"
+        hs.message = "Rollout degraded"
+      end
+    end
+    return hs
+
+  # Server-side diff for accuracy
+  controller.diff.server.side: "true"
+---
+# ArgoCD Notifications — Alert on sync/health changes
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-notifications-cm
+  namespace: argocd
+data:
+  # Notification triggers
+  trigger.on-sync-succeeded: |
+    - when: app.status.operationState.phase in ['Succeeded']
+      send: [app-sync-succeeded]
+  trigger.on-sync-failed: |
+    - when: app.status.operationState.phase in ['Failed', 'Error']
+      send: [app-sync-failed]
+  trigger.on-health-degraded: |
+    - when: app.status.health.status == 'Degraded'
+      send: [app-health-degraded]
+
+  # Notification templates
+  template.app-sync-succeeded: |
+    message: |
+      Application {{.app.metadata.name}} sync succeeded.
+      Revision: {{.app.status.sync.revision}}
+  template.app-sync-failed: |
+    message: |
+      Application {{.app.metadata.name}} sync FAILED.
+      Revision: {{.app.status.sync.revision}}
+      Error: {{.app.status.operationState.message}}
+  template.app-health-degraded: |
+    message: |
+      Application {{.app.metadata.name}} health is DEGRADED.
+      Status: {{.app.status.health.status}}
+---
+# Repository credentials (references a Secret)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitops-repo-creds
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+type: Opaque
+stringData:
+  type: git
+  url: https://github.com/example/gitops-manifests.git
+  # In practice, use a GitHub App or deploy key
+  username: argocd
+  password: REPLACE_WITH_GITHUB_TOKEN

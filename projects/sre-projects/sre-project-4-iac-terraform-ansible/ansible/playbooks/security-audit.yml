@@ -1,0 +1,110 @@
+##############################################################################
+# Security Audit Playbook
+#
+# Runs a security compliance check across all servers and generates a report.
+#
+# Usage:
+#   ansible-playbook playbooks/security-audit.yml
+##############################################################################
+---
+- name: Security audit
+  hosts: all
+  become: true
+  vars:
+    audit_results: []
+
+  tasks:
+    - name: Check SSH root login is disabled
+      ansible.builtin.command: grep "^PermitRootLogin no" /etc/ssh/sshd_config
+      register: ssh_root_check
+      changed_when: false
+      failed_when: false
+      tags: [audit]
+
+    - name: Check password authentication is disabled
+      ansible.builtin.command: grep "^PasswordAuthentication no" /etc/ssh/sshd_config
+      register: ssh_pass_check
+      changed_when: false
+      failed_when: false
+      tags: [audit]
+
+    - name: Check firewalld is running
+      ansible.builtin.systemd:
+        name: firewalld
+      register: firewall_check
+      changed_when: false
+      failed_when: false
+      tags: [audit]
+
+    - name: Check for users with empty passwords
+      ansible.builtin.shell: |
+        awk -F: '($2 == "") {print $1}' /etc/shadow
+      register: empty_passwords
+      changed_when: false
+      tags: [audit]
+
+    - name: Check for users with UID 0 (besides root)
+      ansible.builtin.shell: |
+        awk -F: '($3 == 0 && $1 != "root") {print $1}' /etc/passwd
+      register: uid_zero_users
+      changed_when: false
+      tags: [audit]
+
+    - name: Check world-writable files
+      ansible.builtin.shell: |
+        find / -xdev -type f -perm -0002 2>/dev/null | head -20
+      register: world_writable
+      changed_when: false
+      tags: [audit]
+
+    - name: Check unowned files
+      ansible.builtin.shell: |
+        find / -xdev -nouser -o -nogroup 2>/dev/null | head -20
+      register: unowned_files
+      changed_when: false
+      tags: [audit]
+
+    - name: Check listening ports
+      ansible.builtin.shell: ss -tulnp
+      register: listening_ports
+      changed_when: false
+      tags: [audit]
+
+    - name: Check for pending security updates
+      ansible.builtin.shell: |
+        dnf check-update --security 2>/dev/null | grep -c "^" || echo "0"
+      register: security_updates
+      changed_when: false
+      failed_when: false
+      tags: [audit]
+
+    - name: Generate audit report
+      ansible.builtin.debug:
+        msg: |
+          ╔══════════════════════════════════════════════════════╗
+          ║  SECURITY AUDIT REPORT — {{ inventory_hostname }}
+          ╠══════════════════════════════════════════════════════╣
+
+          SSH Configuration:
+            Root login disabled:        {{ 'PASS' if ssh_root_check.rc == 0 else 'FAIL' }}
+            Password auth disabled:     {{ 'PASS' if ssh_pass_check.rc == 0 else 'FAIL' }}
+
+          Firewall:
+            firewalld running:          {{ 'PASS' if firewall_check.status.ActiveState == 'active' else 'FAIL' }}
+
+          User Security:
+            Users with empty passwords: {{ 'PASS (none)' if empty_passwords.stdout == '' else 'FAIL: ' + empty_passwords.stdout }}
+            Non-root UID 0 users:       {{ 'PASS (none)' if uid_zero_users.stdout == '' else 'FAIL: ' + uid_zero_users.stdout }}
+
+          File System:
+            World-writable files:       {{ 'PASS (none)' if world_writable.stdout == '' else 'WARNING: found ' + (world_writable.stdout_lines | length | string) }}
+            Unowned files:              {{ 'PASS (none)' if unowned_files.stdout == '' else 'WARNING: found ' + (unowned_files.stdout_lines | length | string) }}
+
+          Updates:
+            Pending security updates:   {{ security_updates.stdout | trim }}
+
+          Listening Ports:
+          {{ listening_ports.stdout }}
+
+          ╚══════════════════════════════════════════════════════╝
+      tags: [audit]

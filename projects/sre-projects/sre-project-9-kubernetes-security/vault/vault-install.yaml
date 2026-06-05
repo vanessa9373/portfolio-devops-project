@@ -1,0 +1,139 @@
+##############################################################################
+# HashiCorp Vault — Helm Values for Production Installation
+#
+# Deploys Vault in HA mode with:
+# - Raft integrated storage (no external dependency)
+# - Auto-unseal via AWS KMS
+# - Audit logging enabled
+# - Injector sidecar for K8s secret injection
+# - CSI provider for volume-mounted secrets
+##############################################################################
+global:
+  enabled: true
+  tlsDisable: false
+
+server:
+  image:
+    repository: hashicorp/vault
+    tag: "1.15.4"
+
+  # HA mode with Raft storage
+  ha:
+    enabled: true
+    replicas: 3
+    raft:
+      enabled: true
+      config: |
+        ui = true
+
+        listener "tcp" {
+          tls_disable     = 0
+          address         = "[::]:8200"
+          cluster_address = "[::]:8201"
+          tls_cert_file   = "/vault/userconfig/vault-tls/tls.crt"
+          tls_key_file    = "/vault/userconfig/vault-tls/tls.key"
+        }
+
+        storage "raft" {
+          path = "/vault/data"
+          retry_join {
+            leader_api_addr = "https://vault-0.vault-internal:8200"
+          }
+          retry_join {
+            leader_api_addr = "https://vault-1.vault-internal:8200"
+          }
+          retry_join {
+            leader_api_addr = "https://vault-2.vault-internal:8200"
+          }
+        }
+
+        # Auto-unseal with AWS KMS
+        seal "awskms" {
+          region     = "us-east-1"
+          kms_key_id = "REPLACE_WITH_KMS_KEY_ID"
+        }
+
+        # Audit logging
+        telemetry {
+          prometheus_retention_time = "30s"
+          disable_hostname          = true
+        }
+
+        service_registration "kubernetes" {}
+
+  # Resources
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 250m
+    limits:
+      memory: 512Mi
+      cpu: 500m
+
+  # Persistent storage for Raft
+  dataStorage:
+    enabled: true
+    size: 10Gi
+    storageClass: gp3
+
+  # Audit log storage
+  auditStorage:
+    enabled: true
+    size: 10Gi
+    storageClass: gp3
+
+  # Service account for AWS KMS auto-unseal
+  serviceAccount:
+    create: true
+    annotations:
+      eks.amazonaws.com/role-arn: "arn:aws:iam::ACCOUNT_ID:role/vault-kms-unseal"
+
+  # Pod anti-affinity for HA
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: vault
+          topologyKey: kubernetes.io/hostname
+
+  # Readiness/liveness
+  readinessProbe:
+    path: "/v1/sys/health?standbyok=true&sealedcode=204&uninitcode=204"
+  livenessProbe:
+    path: "/v1/sys/health?standbyok=true"
+    initialDelaySeconds: 60
+
+# ── Vault Agent Injector ────────────────────────────────────────────────
+injector:
+  enabled: true
+  replicas: 2
+  resources:
+    requests:
+      memory: 64Mi
+      cpu: 50m
+    limits:
+      memory: 128Mi
+      cpu: 250m
+  # Inject secrets into pod annotations
+  agentDefaults:
+    cpuLimit: "500m"
+    cpuRequest: "250m"
+    memLimit: "128Mi"
+    memRequest: "64Mi"
+
+# ── CSI Provider ────────────────────────────────────────────────────────
+csi:
+  enabled: true
+  resources:
+    requests:
+      memory: 64Mi
+      cpu: 50m
+    limits:
+      memory: 128Mi
+      cpu: 250m
+
+# ── UI ──────────────────────────────────────────────────────────────────
+ui:
+  enabled: true
+  serviceType: ClusterIP

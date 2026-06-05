@@ -1,0 +1,113 @@
+##############################################################################
+# Pod Security Standards — K8s-native pod security enforcement
+#
+# Uses the built-in Pod Security Admission controller (PSA) to enforce
+# security levels per namespace:
+# - privileged:  Unrestricted (kube-system only)
+# - baseline:    Minimal restrictions (staging, development)
+# - restricted:  Hardened (production)
+##############################################################################
+
+# ── Production: Restricted (enforce) ────────────────────────────────────
+# Blocks: privileged, hostNetwork, hostPID, hostIPC, hostPorts,
+#         root user, privilege escalation, all capabilities
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: production
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/audit-version: latest
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/warn-version: latest
+
+---
+# ── Staging: Baseline (enforce) + Restricted (warn) ────────────────────
+# Blocks obvious risks, warns on production-level requirements
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: staging
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/audit-version: latest
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/warn-version: latest
+
+---
+# ── Development: Baseline (warn only) ──────────────────────────────────
+# Maximum flexibility, but developers see warnings about violations
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: development
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/warn-version: latest
+
+---
+# ── Monitoring: Baseline (enforce) ─────────────────────────────────────
+# Some monitoring tools need hostNetwork/hostPID (node-exporter)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/warn-version: latest
+
+---
+##############################################################################
+# Example: Restricted-compliant Pod spec
+# This pod passes the "restricted" security level checks.
+##############################################################################
+apiVersion: v1
+kind: Pod
+metadata:
+  name: restricted-example
+  namespace: production
+  labels:
+    app: example
+spec:
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 3000
+    fsGroup: 2000
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: app
+      image: 123456789.dkr.ecr.us-east-1.amazonaws.com/app:v1.2.3
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        capabilities:
+          drop:
+            - ALL
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 500m
+          memory: 256Mi
+      volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: data
+          mountPath: /app/data
+  volumes:
+    - name: tmp
+      emptyDir: {}
+    - name: data
+      emptyDir: {}

@@ -1,0 +1,174 @@
+##############################################################################
+# Hardening Role — Security hardening for production servers
+#
+# Based on CIS Benchmark recommendations for Amazon Linux 2023
+# Applies to: ALL hosts (especially prod)
+##############################################################################
+---
+# ── SSH Hardening ───────────────────────────────────────────────────────
+
+- name: Harden SSH configuration
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    validate: "sshd -t -f %s"
+  loop:
+    - { regexp: "^#?PermitRootLogin", line: "PermitRootLogin no" }
+    - { regexp: "^#?PasswordAuthentication", line: "PasswordAuthentication no" }
+    - { regexp: "^#?X11Forwarding", line: "X11Forwarding no" }
+    - { regexp: "^#?MaxAuthTries", line: "MaxAuthTries 3" }
+    - { regexp: "^#?ClientAliveInterval", line: "ClientAliveInterval 300" }
+    - { regexp: "^#?ClientAliveCountMax", line: "ClientAliveCountMax 2" }
+    - { regexp: "^#?AllowTcpForwarding", line: "AllowTcpForwarding no" }
+    - { regexp: "^#?Protocol", line: "Protocol 2" }
+  notify: Restart sshd
+  tags: [hardening, ssh]
+
+# ── Firewall (firewalld) ───────────────────────────────────────────────
+
+- name: Install firewalld
+  ansible.builtin.dnf:
+    name: firewalld
+    state: present
+  tags: [hardening, firewall]
+
+- name: Start and enable firewalld
+  ansible.builtin.systemd:
+    name: firewalld
+    state: started
+    enabled: true
+  tags: [hardening, firewall]
+
+- name: Allow SSH through firewall
+  ansible.posix.firewalld:
+    service: ssh
+    permanent: true
+    state: enabled
+    immediate: true
+  tags: [hardening, firewall]
+
+- name: Allow application port through firewall
+  ansible.posix.firewalld:
+    port: "{{ app_port | default(8080) }}/tcp"
+    permanent: true
+    state: enabled
+    immediate: true
+  when: "'webservers' in group_names"
+  tags: [hardening, firewall]
+
+- name: Allow Node Exporter port through firewall
+  ansible.posix.firewalld:
+    port: "9100/tcp"
+    permanent: true
+    state: enabled
+    immediate: true
+  tags: [hardening, firewall]
+
+# ── Disable Unnecessary Services ───────────────────────────────────────
+
+- name: Disable unnecessary services
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+  loop:
+    - bluetooth
+    - avahi-daemon
+  failed_when: false  # Skip if service doesn't exist
+  tags: [hardening]
+
+# ── Kernel Security Parameters ─────────────────────────────────────────
+
+- name: Apply security sysctl settings
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    sysctl_set: true
+    state: present
+    reload: true
+  loop:
+    - { key: "net.ipv4.conf.all.send_redirects", value: "0" }
+    - { key: "net.ipv4.conf.default.send_redirects", value: "0" }
+    - { key: "net.ipv4.conf.all.accept_redirects", value: "0" }
+    - { key: "net.ipv4.conf.default.accept_redirects", value: "0" }
+    - { key: "net.ipv4.conf.all.accept_source_route", value: "0" }
+    - { key: "net.ipv4.conf.default.accept_source_route", value: "0" }
+    - { key: "net.ipv4.conf.all.log_martians", value: "1" }
+    - { key: "net.ipv4.icmp_echo_ignore_broadcasts", value: "1" }
+    - { key: "kernel.randomize_va_space", value: "2" }
+  tags: [hardening, sysctl]
+
+# ── File Permissions ───────────────────────────────────────────────────
+
+- name: Set correct permissions on sensitive files
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: "/etc/passwd", mode: "0644" }
+    - { path: "/etc/shadow", mode: "0640" }
+    - { path: "/etc/group", mode: "0644" }
+    - { path: "/etc/gshadow", mode: "0640" }
+    - { path: "/etc/ssh/sshd_config", mode: "0600" }
+  tags: [hardening, permissions]
+
+# ── Audit Logging ──────────────────────────────────────────────────────
+
+- name: Install auditd
+  ansible.builtin.dnf:
+    name: audit
+    state: present
+  tags: [hardening, audit]
+
+- name: Start and enable auditd
+  ansible.builtin.systemd:
+    name: auditd
+    state: started
+    enabled: true
+  tags: [hardening, audit]
+
+- name: Configure audit rules
+  ansible.builtin.copy:
+    dest: /etc/audit/rules.d/sre-audit.rules
+    content: |
+      # Monitor login/logout events
+      -w /var/log/lastlog -p wa -k logins
+      -w /var/log/faillog -p wa -k logins
+
+      # Monitor user/group changes
+      -w /etc/passwd -p wa -k identity
+      -w /etc/group -p wa -k identity
+      -w /etc/shadow -p wa -k identity
+
+      # Monitor sudo usage
+      -w /etc/sudoers -p wa -k sudo_changes
+      -w /etc/sudoers.d/ -p wa -k sudo_changes
+
+      # Monitor SSH config
+      -w /etc/ssh/sshd_config -p wa -k ssh_config
+
+      # Monitor Docker
+      -w /usr/bin/docker -p x -k docker
+      -w /etc/docker/ -p wa -k docker_config
+    owner: root
+    group: root
+    mode: "0640"
+  notify: Restart auditd
+  tags: [hardening, audit]
+
+# ── Password Policy ────────────────────────────────────────────────────
+
+- name: Configure password aging
+  ansible.builtin.lineinfile:
+    path: /etc/login.defs
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - { regexp: "^PASS_MAX_DAYS", line: "PASS_MAX_DAYS 90" }
+    - { regexp: "^PASS_MIN_DAYS", line: "PASS_MIN_DAYS 7" }
+    - { regexp: "^PASS_WARN_AGE", line: "PASS_WARN_AGE 14" }
+  tags: [hardening, password]

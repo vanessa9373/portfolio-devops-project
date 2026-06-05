@@ -1,0 +1,212 @@
+##############################################################################
+# Elasticsearch — Log Storage Backend
+#
+# Single-node deployment for k3d/local development.
+# For production: use StatefulSet with 3+ replicas and dedicated
+# master/data/ingest node roles.
+#
+# Deploy: kubectl apply -f logging/elasticsearch/
+##############################################################################
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elasticsearch-config
+  namespace: logging
+  labels:
+    app: elasticsearch
+data:
+  elasticsearch.yml: |
+    cluster.name: sre-logging
+    node.name: ${HOSTNAME}
+    network.host: 0.0.0.0
+    discovery.type: single-node
+
+    # Security (disable for local dev, enable for prod)
+    xpack.security.enabled: false
+
+    # Index lifecycle management
+    xpack.ilm.enabled: true
+
+    # Performance tuning
+    indices.memory.index_buffer_size: 20%
+    thread_pool.write.queue_size: 1000
+
+  # JVM settings — tuned for k3d (limited resources)
+  jvm.options.d/custom.options: |
+    -Xms512m
+    -Xmx512m
+    -XX:+UseG1GC
+    -XX:G1ReservePercent=25
+    -XX:InitiatingHeapOccupancyPercent=30
+
+  # Index template for application logs
+  index-template.json: |
+    {
+      "index_patterns": ["app-logs-*", "k8s-logs-*"],
+      "template": {
+        "settings": {
+          "number_of_shards": 1,
+          "number_of_replicas": 0,
+          "index.lifecycle.name": "logs-policy",
+          "index.lifecycle.rollover_alias": "app-logs"
+        },
+        "mappings": {
+          "properties": {
+            "@timestamp": { "type": "date" },
+            "message": { "type": "text" },
+            "level": { "type": "keyword" },
+            "kubernetes": {
+              "properties": {
+                "namespace_name": { "type": "keyword" },
+                "pod_name": { "type": "keyword" },
+                "container_name": { "type": "keyword" },
+                "labels": { "type": "object" }
+              }
+            },
+            "trace_id": { "type": "keyword" },
+            "span_id": { "type": "keyword" }
+          }
+        }
+      }
+    }
+
+  # ILM policy — auto-delete logs after 7 days
+  ilm-policy.json: |
+    {
+      "policy": {
+        "phases": {
+          "hot": {
+            "min_age": "0ms",
+            "actions": {
+              "rollover": {
+                "max_age": "1d",
+                "max_primary_shard_size": "5gb"
+              }
+            }
+          },
+          "warm": {
+            "min_age": "2d",
+            "actions": {
+              "forcemerge": { "max_num_segments": 1 },
+              "shrink": { "number_of_shards": 1 }
+            }
+          },
+          "delete": {
+            "min_age": "7d",
+            "actions": { "delete": {} }
+          }
+        }
+      }
+    }
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: elasticsearch
+  namespace: logging
+  labels:
+    app: elasticsearch
+spec:
+  serviceName: elasticsearch
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elasticsearch
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+    spec:
+      initContainers:
+        # Elasticsearch needs vm.max_map_count=262144
+        - name: sysctl
+          image: busybox:1.36
+          command: ["sysctl", "-w", "vm.max_map_count=262144"]
+          securityContext:
+            privileged: true
+
+        # Fix data directory permissions
+        - name: fix-permissions
+          image: busybox:1.36
+          command: ["sh", "-c", "chown -R 1000:1000 /usr/share/elasticsearch/data"]
+          volumeMounts:
+            - name: data
+              mountPath: /usr/share/elasticsearch/data
+
+      containers:
+        - name: elasticsearch
+          image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+          env:
+            - name: ES_JAVA_OPTS
+              value: "-Xms512m -Xmx512m"
+            - name: discovery.type
+              value: single-node
+            - name: xpack.security.enabled
+              value: "false"
+            - name: cluster.name
+              value: sre-logging
+          ports:
+            - containerPort: 9200
+              name: http
+            - containerPort: 9300
+              name: transport
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "1.5Gi"
+              cpu: "1000m"
+          volumeMounts:
+            - name: data
+              mountPath: /usr/share/elasticsearch/data
+            - name: config
+              mountPath: /usr/share/elasticsearch/config/elasticsearch.yml
+              subPath: elasticsearch.yml
+          readinessProbe:
+            httpGet:
+              path: /_cluster/health?wait_for_status=yellow
+              port: 9200
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /_cluster/health
+              port: 9200
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 10
+      volumes:
+        - name: config
+          configMap:
+            name: elasticsearch-config
+
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch
+  namespace: logging
+  labels:
+    app: elasticsearch
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9200
+      targetPort: 9200
+      name: http
+    - port: 9300
+      targetPort: 9300
+      name: transport
+  selector:
+    app: elasticsearch

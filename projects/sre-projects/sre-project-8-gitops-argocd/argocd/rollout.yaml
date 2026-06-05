@@ -1,0 +1,265 @@
+##############################################################################
+# Argo Rollouts — Advanced deployment strategies
+#
+# Replaces standard Deployment with Rollout resource that supports:
+# - Canary with automated analysis (Prometheus metrics)
+# - Blue-Green with preview service
+# - Automatic rollback on metric degradation
+##############################################################################
+
+# ── Canary Rollout ──────────────────────────────────────────────────────
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: sre-platform-app
+  namespace: production
+  labels:
+    app: sre-platform
+spec:
+  replicas: 5
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: sre-platform
+  template:
+    metadata:
+      labels:
+        app: sre-platform
+    spec:
+      containers:
+        - name: app
+          image: ECR_REGISTRY/sre-platform/app:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
+
+  strategy:
+    canary:
+      # Traffic splitting steps
+      steps:
+        - setWeight: 5
+        - pause: { duration: 2m }
+        - analysis:
+            templates:
+              - templateName: canary-analysis
+        - setWeight: 20
+        - pause: { duration: 3m }
+        - analysis:
+            templates:
+              - templateName: canary-analysis
+        - setWeight: 50
+        - pause: { duration: 5m }
+        - analysis:
+            templates:
+              - templateName: canary-analysis
+        - setWeight: 80
+        - pause: { duration: 3m }
+        - setWeight: 100
+
+      # Canary service for traffic splitting
+      canaryService: sre-platform-canary
+      stableService: sre-platform-stable
+
+      # Traffic routing via Istio or nginx
+      trafficRouting:
+        nginx:
+          stableIngress: sre-platform-ingress
+          additionalIngressAnnotations:
+            canary-by-header: X-Canary
+
+      # Automatic rollback on failure
+      abortScaleDownDelaySeconds: 30
+      dynamicStableScale: true
+
+      # Anti-affinity — spread canary across nodes
+      antiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          weight: 100
+
+---
+# ── Canary Analysis Template ───────────────────────────────────────────
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: canary-analysis
+  namespace: production
+spec:
+  args:
+    - name: service-name
+      value: sre-platform-canary
+  metrics:
+    # Success rate must stay above 99%
+    - name: success-rate
+      interval: 60s
+      count: 3
+      successCondition: result[0] >= 0.99
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: http://prometheus.monitoring:9090
+          query: |
+            sum(rate(http_requests_total{service="{{args.service-name}}",status=~"2.."}[2m]))
+            /
+            sum(rate(http_requests_total{service="{{args.service-name}}"}[2m]))
+
+    # P99 latency must stay under 500ms
+    - name: latency-p99
+      interval: 60s
+      count: 3
+      successCondition: result[0] <= 500
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: http://prometheus.monitoring:9090
+          query: |
+            histogram_quantile(0.99,
+              sum(rate(http_request_duration_milliseconds_bucket{service="{{args.service-name}}"}[2m])) by (le)
+            )
+
+    # Pod restart count must be zero
+    - name: pod-restarts
+      interval: 60s
+      count: 3
+      successCondition: result[0] == 0
+      failureLimit: 0
+      provider:
+        prometheus:
+          address: http://prometheus.monitoring:9090
+          query: |
+            sum(kube_pod_container_status_restarts_total{
+              namespace="production",
+              pod=~"sre-platform-app-.*"
+            }) - sum(kube_pod_container_status_restarts_total{
+              namespace="production",
+              pod=~"sre-platform-app-.*"
+            } offset 5m)
+
+---
+# ── Blue-Green Rollout (alternative) ───────────────────────────────────
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: sre-platform-app-bluegreen
+  namespace: production
+  labels:
+    app: sre-platform-bluegreen
+  annotations:
+    description: "Blue-green deployment — use when canary is not suitable"
+spec:
+  replicas: 5
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: sre-platform-bluegreen
+  template:
+    metadata:
+      labels:
+        app: sre-platform-bluegreen
+    spec:
+      containers:
+        - name: app
+          image: ECR_REGISTRY/sre-platform/app:latest
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+
+  strategy:
+    blueGreen:
+      # Active service receives production traffic
+      activeService: sre-platform-active
+      # Preview service for testing before promotion
+      previewService: sre-platform-preview
+
+      # Run analysis before promoting
+      prePromotionAnalysis:
+        templates:
+          - templateName: canary-analysis
+        args:
+          - name: service-name
+            value: sre-platform-preview
+
+      # Do NOT auto-promote — require manual approval
+      autoPromotionEnabled: false
+      autoPromotionSeconds: 0
+
+      # Keep old ReplicaSet running for fast rollback
+      scaleDownDelaySeconds: 600
+      scaleDownDelayRevisionLimit: 1
+
+      # Anti-affinity between blue and green
+      antiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution: {}
+
+---
+# ── Services for traffic splitting ──────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: sre-platform-stable
+  namespace: production
+spec:
+  selector:
+    app: sre-platform
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sre-platform-canary
+  namespace: production
+spec:
+  selector:
+    app: sre-platform
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sre-platform-active
+  namespace: production
+spec:
+  selector:
+    app: sre-platform-bluegreen
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sre-platform-preview
+  namespace: production
+spec:
+  selector:
+    app: sre-platform-bluegreen
+  ports:
+    - port: 80
+      targetPort: 8080

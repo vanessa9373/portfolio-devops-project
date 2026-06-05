@@ -1,0 +1,161 @@
+##############################################################################
+# Vault Kubernetes Auth Method — Authenticate K8s pods to Vault
+#
+# Workflow:
+# 1. Pod's ServiceAccount JWT is sent to Vault
+# 2. Vault validates JWT with K8s API
+# 3. Vault maps SA to a policy based on role binding
+# 4. Pod receives a Vault token with scoped permissions
+##############################################################################
+
+# ── Auth Method Configuration (applied via vault CLI) ───────────────────
+# These commands configure the K8s auth method in Vault.
+# Run via: vault auth enable kubernetes && vault write auth/kubernetes/config ...
+
+---
+# ServiceAccount for Vault to verify K8s pod identities
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault-auth
+  namespace: vault
+  labels:
+    app: vault
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: vault-auth-delegator
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+  - kind: ServiceAccount
+    name: vault-auth
+    namespace: vault
+
+---
+##############################################################################
+# Application ServiceAccounts — Each app gets its own SA bound to a
+# Vault role that grants access only to its namespace's secrets.
+##############################################################################
+
+# ── Production App ServiceAccount ───────────────────────────────────────
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: app-vault-sa
+  namespace: production
+  labels:
+    vault-role: app-readonly
+  annotations:
+    vault.hashicorp.com/agent-inject: "true"
+    vault.hashicorp.com/role: "production-app"
+
+---
+# ── Staging App ServiceAccount ──────────────────────────────────────────
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: app-vault-sa
+  namespace: staging
+  labels:
+    vault-role: app-readonly
+  annotations:
+    vault.hashicorp.com/agent-inject: "true"
+    vault.hashicorp.com/role: "staging-app"
+
+---
+##############################################################################
+# Example: Pod with Vault Agent Sidecar Injection
+# Secrets are rendered as files inside the pod automatically.
+##############################################################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-with-vault-secrets
+  namespace: production
+  labels:
+    app: example-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: example-app
+  template:
+    metadata:
+      labels:
+        app: example-app
+      annotations:
+        # Vault Agent Injector annotations
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/role: "production-app"
+        # Inject database credentials
+        vault.hashicorp.com/agent-inject-secret-db-creds: "secret/data/production/database"
+        vault.hashicorp.com/agent-inject-template-db-creds: |
+          {{- with secret "secret/data/production/database" -}}
+          export DB_HOST="{{ .Data.data.host }}"
+          export DB_PORT="{{ .Data.data.port }}"
+          export DB_USER="{{ .Data.data.username }}"
+          export DB_PASS="{{ .Data.data.password }}"
+          {{- end -}}
+        # Inject API keys
+        vault.hashicorp.com/agent-inject-secret-api-keys: "secret/data/production/api-keys"
+        vault.hashicorp.com/agent-inject-template-api-keys: |
+          {{- with secret "secret/data/production/api-keys" -}}
+          export STRIPE_KEY="{{ .Data.data.stripe }}"
+          export SENDGRID_KEY="{{ .Data.data.sendgrid }}"
+          {{- end -}}
+        # Secret rotation
+        vault.hashicorp.com/agent-inject-token: "false"
+        vault.hashicorp.com/agent-pre-populate-only: "false"
+    spec:
+      serviceAccountName: app-vault-sa
+      containers:
+        - name: app
+          image: sre-platform/app:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - source /vault/secrets/db-creds && source /vault/secrets/api-keys && exec /app/start
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+
+---
+##############################################################################
+# Vault CSI SecretProviderClass — Alternative to sidecar injection
+# Mounts secrets as volumes using the Secrets Store CSI Driver.
+##############################################################################
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: vault-db-creds
+  namespace: production
+spec:
+  provider: vault
+  parameters:
+    vaultAddress: "https://vault.vault:8200"
+    roleName: "production-app"
+    objects: |
+      - objectName: "db-host"
+        secretPath: "secret/data/production/database"
+        secretKey: "host"
+      - objectName: "db-password"
+        secretPath: "secret/data/production/database"
+        secretKey: "password"
+  # Sync to K8s Secret (optional, for env var injection)
+  secretObjects:
+    - secretName: db-creds-synced
+      type: Opaque
+      data:
+        - objectName: db-host
+          key: DB_HOST
+        - objectName: db-password
+          key: DB_PASSWORD

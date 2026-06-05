@@ -1,0 +1,169 @@
+##############################################################################
+# SLO Recording Rules — Prometheus
+# These rules pre-compute SLI metrics so dashboards and alerts are fast.
+# Apply with: kubectl apply -f slo-recording-rules.yaml
+##############################################################################
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: slo-recording-rules
+  namespace: monitoring
+  labels:
+    release: prometheus
+    app: kube-prometheus-stack
+spec:
+  groups:
+    # ── Availability SLI ────────────────────────────────────────────────
+    # Measures the ratio of successful HTTP requests (non-5xx) to total.
+    - name: slo.availability
+      interval: 30s
+      rules:
+        # Total requests per service (rate over 5m window)
+        - record: sli:http_requests:rate5m
+          expr: |
+            sum by (job, namespace, service) (
+              rate(http_requests_total[5m])
+            )
+
+        # Failed requests per service (5xx status codes)
+        - record: sli:http_requests_errors:rate5m
+          expr: |
+            sum by (job, namespace, service) (
+              rate(http_requests_total{status=~"5.."}[5m])
+            )
+
+        # Availability ratio (1.0 = 100% available)
+        - record: sli:availability:ratio_rate5m
+          expr: |
+            1 - (
+              sli:http_requests_errors:rate5m
+              /
+              sli:http_requests:rate5m
+            )
+
+        # 1-hour availability
+        - record: sli:availability:ratio_rate1h
+          expr: |
+            1 - (
+              sum by (job, namespace, service) (
+                rate(http_requests_total{status=~"5.."}[1h])
+              )
+              /
+              sum by (job, namespace, service) (
+                rate(http_requests_total[1h])
+              )
+            )
+
+        # 6-hour availability
+        - record: sli:availability:ratio_rate6h
+          expr: |
+            1 - (
+              sum by (job, namespace, service) (
+                rate(http_requests_total{status=~"5.."}[6h])
+              )
+              /
+              sum by (job, namespace, service) (
+                rate(http_requests_total[6h])
+              )
+            )
+
+        # 1-day availability
+        - record: sli:availability:ratio_rate1d
+          expr: |
+            1 - (
+              sum by (job, namespace, service) (
+                rate(http_requests_total{status=~"5.."}[1d])
+              )
+              /
+              sum by (job, namespace, service) (
+                rate(http_requests_total[1d])
+              )
+            )
+
+        # 30-day availability (SLO window)
+        - record: sli:availability:ratio_rate30d
+          expr: |
+            1 - (
+              sum by (job, namespace, service) (
+                rate(http_requests_total{status=~"5.."}[30d])
+              )
+              /
+              sum by (job, namespace, service) (
+                rate(http_requests_total[30d])
+              )
+            )
+
+    # ── Latency SLI ─────────────────────────────────────────────────────
+    # Measures the proportion of requests served within the latency target.
+    - name: slo.latency
+      interval: 30s
+      rules:
+        # Percentage of requests under 300ms (P99 latency target)
+        - record: sli:latency:ratio_rate5m
+          expr: |
+            sum by (job, namespace, service) (
+              rate(http_request_duration_seconds_bucket{le="0.3"}[5m])
+            )
+            /
+            sum by (job, namespace, service) (
+              rate(http_request_duration_seconds_count[5m])
+            )
+
+        # 1-hour latency compliance
+        - record: sli:latency:ratio_rate1h
+          expr: |
+            sum by (job, namespace, service) (
+              rate(http_request_duration_seconds_bucket{le="0.3"}[1h])
+            )
+            /
+            sum by (job, namespace, service) (
+              rate(http_request_duration_seconds_count[1h])
+            )
+
+        # 1-day latency compliance
+        - record: sli:latency:ratio_rate1d
+          expr: |
+            sum by (job, namespace, service) (
+              rate(http_request_duration_seconds_bucket{le="0.3"}[1d])
+            )
+            /
+            sum by (job, namespace, service) (
+              rate(http_request_duration_seconds_count[1d])
+            )
+
+    # ── Error Budget ────────────────────────────────────────────────────
+    # Tracks how much of the error budget has been consumed.
+    # SLO target: 99.9% availability → 0.1% error budget
+    - name: slo.error_budget
+      interval: 30s
+      rules:
+        # Error budget remaining (1.0 = full budget, 0.0 = exhausted)
+        # Formula: 1 - ((1 - availability_over_period) / (1 - slo_target))
+        - record: slo:error_budget:remaining_ratio
+          expr: |
+            1 - (
+              (1 - sli:availability:ratio_rate30d)
+              /
+              (1 - 0.999)
+            )
+
+        # Error budget burn rate (how fast budget is being consumed)
+        # burn_rate = 1 means consuming at exactly the allowed pace
+        # burn_rate > 1 means consuming faster than allowed
+        - record: slo:error_budget:burn_rate_1h
+          expr: |
+            (1 - sli:availability:ratio_rate1h)
+            /
+            (1 - 0.999)
+
+        - record: slo:error_budget:burn_rate_6h
+          expr: |
+            (1 - sli:availability:ratio_rate6h)
+            /
+            (1 - 0.999)
+
+        - record: slo:error_budget:burn_rate_1d
+          expr: |
+            (1 - sli:availability:ratio_rate1d)
+            /
+            (1 - 0.999)

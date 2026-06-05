@@ -1,0 +1,118 @@
+##############################################################################
+# Experiment: Pod Delete
+#
+# Hypothesis: The application remains available when pods are randomly killed.
+# Validates: Kubernetes self-healing, replica count, readiness probes.
+#
+# Expected Behavior:
+# - Kubernetes detects the pod is missing
+# - ReplicaSet creates a replacement pod
+# - New pod passes readiness probe and receives traffic
+# - Users experience zero or minimal downtime (if >1 replica)
+##############################################################################
+---
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: pod-delete-chaos
+  namespace: sre-demo
+  labels:
+    experiment: pod-delete
+    severity: medium
+spec:
+  engineState: active
+  appinfo:
+    appns: sre-demo
+    applabel: app=frontend
+    appkind: deployment
+  chaosServiceAccount: chaos-admin
+  experiments:
+    - name: pod-delete
+      spec:
+        components:
+          env:
+            # Number of pods to kill
+            - name: TOTAL_CHAOS_DURATION
+              value: "60"
+            # Kill one pod at a time
+            - name: PODS_AFFECTED_PERC
+              value: "50"
+            # Interval between kills (seconds)
+            - name: CHAOS_INTERVAL
+              value: "15"
+            # Force delete (no graceful shutdown)
+            - name: FORCE
+              value: "false"
+            # Sequence: parallel or serial
+            - name: SEQUENCE
+              value: serial
+        probe:
+          - name: availability-check
+            type: httpProbe
+            mode: Continuous
+            httpProbe/inputs:
+              url: http://frontend.sre-demo.svc.cluster.local:8080/
+              insecureSkipVerify: true
+              method:
+                get:
+                  criteria: ==
+                  responseCode: "200"
+            runProperties:
+              probeTimeout: 5s
+              interval: 5s
+              retry: 3
+              probePollingInterval: 2s
+---
+# Manual execution alternative (no Litmus required)
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pod-delete-manual
+  namespace: sre-demo
+  labels:
+    experiment: pod-delete
+    type: manual
+spec:
+  template:
+    spec:
+      serviceAccountName: chaos-admin
+      restartPolicy: Never
+      containers:
+        - name: chaos-runner
+          image: bitnami/kubectl:latest
+          command:
+            - /bin/bash
+            - -c
+            - |
+              echo "=== Pod Delete Experiment ==="
+              echo "Target: frontend deployment in sre-demo"
+              echo "Duration: 60s, Interval: 15s"
+              echo ""
+
+              DURATION=60
+              INTERVAL=15
+              START=$(date +%s)
+              KILL_COUNT=0
+
+              while [ $(($(date +%s) - START)) -lt $DURATION ]; do
+                # Pick a random frontend pod
+                POD=$(kubectl get pods -n sre-demo -l app=frontend \
+                  --field-selector=status.phase=Running \
+                  -o jsonpath='{.items[0].metadata.name}' 2>/dev/null)
+
+                if [ -n "$POD" ]; then
+                  echo "[$(date -u '+%H:%M:%S')] Deleting pod: $POD"
+                  kubectl delete pod "$POD" -n sre-demo --grace-period=30
+                  KILL_COUNT=$((KILL_COUNT + 1))
+                else
+                  echo "[$(date -u '+%H:%M:%S')] No running pods found, waiting..."
+                fi
+
+                sleep $INTERVAL
+              done
+
+              echo ""
+              echo "=== Experiment Complete ==="
+              echo "Pods killed: $KILL_COUNT"
+              echo "Check: kubectl get pods -n sre-demo -l app=frontend"
+  backoffLimit: 0

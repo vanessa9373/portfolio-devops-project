@@ -1,0 +1,120 @@
+##############################################################################
+# Experiment: Application Process Kill
+#
+# Hypothesis: The application process restarts cleanly after being killed
+#             (SIGKILL). No data corruption or stuck state.
+# Validates: Graceful restart, liveness probes, container restart policy.
+#
+# Expected Behavior:
+# - Application process inside the container is killed
+# - Container runtime detects the process exit
+# - Kubernetes restarts the container (within the same pod)
+# - Liveness probe confirms the app is healthy again
+# - No orphaned resources or corrupted state
+##############################################################################
+---
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: container-kill-chaos
+  namespace: sre-demo
+  labels:
+    experiment: container-kill
+    severity: high
+spec:
+  engineState: active
+  appinfo:
+    appns: sre-demo
+    applabel: app=frontend
+    appkind: deployment
+  chaosServiceAccount: chaos-admin
+  experiments:
+    - name: container-kill
+      spec:
+        components:
+          env:
+            - name: TOTAL_CHAOS_DURATION
+              value: "60"
+            # Target specific container by name
+            - name: TARGET_CONTAINER
+              value: server
+            # Kill signal
+            - name: SIGNAL
+              value: SIGKILL
+            - name: CHAOS_INTERVAL
+              value: "20"
+            - name: PODS_AFFECTED_PERC
+              value: "50"
+            - name: CONTAINER_RUNTIME
+              value: containerd
+            - name: SOCKET_PATH
+              value: /run/containerd/containerd.sock
+        probe:
+          - name: pod-restart-check
+            type: cmdProbe
+            mode: OnChaos
+            cmdProbe/inputs:
+              command: kubectl get pods -n sre-demo -l app=frontend -o jsonpath='{.items[0].status.containerStatuses[0].restartCount}'
+              comparator:
+                type: int
+                criteria: ">="
+                value: "1"
+            runProperties:
+              probeTimeout: 30s
+              interval: 10s
+              retry: 5
+---
+# Manual execution alternative
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: container-kill-manual
+  namespace: sre-demo
+  labels:
+    experiment: container-kill
+    type: manual
+spec:
+  template:
+    spec:
+      serviceAccountName: chaos-admin
+      restartPolicy: Never
+      containers:
+        - name: chaos-runner
+          image: bitnami/kubectl:latest
+          command:
+            - /bin/bash
+            - -c
+            - |
+              echo "=== Container Kill Experiment ==="
+              echo "Target: frontend containers in sre-demo"
+              echo "Signal: SIGKILL"
+              echo ""
+
+              # Record restart counts before
+              echo "[BEFORE] Container restart counts:"
+              kubectl get pods -n sre-demo -l app=frontend \
+                -o jsonpath='{range .items[*]}{.metadata.name}: {.status.containerStatuses[0].restartCount}{"\n"}{end}'
+              echo ""
+
+              # Kill the main process in the first frontend pod
+              POD=$(kubectl get pods -n sre-demo -l app=frontend \
+                --field-selector=status.phase=Running \
+                -o jsonpath='{.items[0].metadata.name}')
+
+              echo "[ACTION] Killing main process in $POD..."
+              kubectl exec -n sre-demo "$POD" -- kill -9 1 2>/dev/null || true
+
+              echo "[INFO] Waiting 30s for container restart..."
+              sleep 30
+
+              # Record restart counts after
+              echo "[AFTER] Container restart counts:"
+              kubectl get pods -n sre-demo -l app=frontend \
+                -o jsonpath='{range .items[*]}{.metadata.name}: {.status.containerStatuses[0].restartCount}{"\n"}{end}'
+              echo ""
+
+              echo "[STATUS] Pod status:"
+              kubectl get pods -n sre-demo -l app=frontend
+              echo ""
+              echo "=== Experiment Complete ==="
+  backoffLimit: 0

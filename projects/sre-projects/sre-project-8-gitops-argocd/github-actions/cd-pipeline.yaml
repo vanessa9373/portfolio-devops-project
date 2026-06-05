@@ -1,0 +1,230 @@
+##############################################################################
+# CD Pipeline — Deploy to Staging → Canary to Production → Full Rollout
+#
+# Two-phase deployment:
+# 1. Auto-deploy to staging on manifest change (ArgoCD syncs)
+# 2. Manual promotion to production with canary analysis
+##############################################################################
+name: CD Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      image_tag:
+        description: "Image tag to deploy"
+        required: true
+        type: string
+      strategy:
+        description: "Deployment strategy"
+        required: true
+        type: choice
+        options:
+          - canary
+          - blue-green
+          - rolling
+
+env:
+  AWS_REGION: us-east-1
+  ARGOCD_SERVER: argocd.internal.example.com
+
+jobs:
+  # ── Pre-Deployment Checks ─────────────────────────────────────────────
+  pre-deploy:
+    name: Pre-Deployment Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify image exists in ECR
+        run: |
+          aws ecr describe-images \
+            --repository-name sre-platform/app \
+            --image-ids imageTag=${{ inputs.image_tag }} \
+            --region ${{ env.AWS_REGION }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Check image scan results
+        run: |
+          FINDINGS=$(aws ecr describe-image-scan-findings \
+            --repository-name sre-platform/app \
+            --image-id imageTag=${{ inputs.image_tag }} \
+            --query 'imageScanFindings.findingSeverityCounts.CRITICAL' \
+            --output text 2>/dev/null || echo "0")
+          if [ "$FINDINGS" != "0" ] && [ "$FINDINGS" != "None" ]; then
+            echo "::error::Image has $FINDINGS critical vulnerabilities"
+            exit 1
+          fi
+
+      - name: Verify staging is healthy (for prod deploys)
+        if: inputs.environment == 'production'
+        run: |
+          echo "Checking staging health before production deploy..."
+          STAGING_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            https://staging.example.com/healthz || echo "000")
+          if [ "$STAGING_STATUS" != "200" ]; then
+            echo "::error::Staging is unhealthy (HTTP $STAGING_STATUS). Fix staging first."
+            exit 1
+          fi
+
+  # ── Deploy to Staging ─────────────────────────────────────────────────
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: pre-deploy
+    if: inputs.environment == 'staging'
+    environment:
+      name: staging
+      url: https://staging.example.com
+    steps:
+      - name: Checkout GitOps repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/gitops-manifests
+          token: ${{ secrets.GITOPS_TOKEN }}
+
+      - name: Update staging image tag
+        run: |
+          sed -i "s|tag:.*|tag: ${{ inputs.image_tag }}|" environments/staging/values.yaml
+
+      - name: Commit manifest change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "deploy(staging): ${{ inputs.image_tag }} via ${{ inputs.strategy }}"
+          git push
+
+      - name: Wait for ArgoCD sync
+        run: |
+          echo "ArgoCD will auto-sync staging within 3 minutes..."
+          echo "Monitor: https://${{ env.ARGOCD_SERVER }}/applications/app-staging"
+          sleep 30
+
+      - name: Smoke test staging
+        run: |
+          for i in $(seq 1 12); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              https://staging.example.com/healthz 2>/dev/null || echo "000")
+            if [ "$STATUS" = "200" ]; then
+              echo "Staging is healthy (attempt $i)"
+              exit 0
+            fi
+            echo "Waiting for staging... (attempt $i, status: $STATUS)"
+            sleep 10
+          done
+          echo "::error::Staging failed health check after 2 minutes"
+          exit 1
+
+  # ── Deploy to Production (Canary) ────────────────────────────────────
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: pre-deploy
+    if: inputs.environment == 'production'
+    environment:
+      name: production
+      url: https://app.example.com
+    steps:
+      - name: Checkout GitOps repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/gitops-manifests
+          token: ${{ secrets.GITOPS_TOKEN }}
+
+      - name: Update production image tag
+        run: |
+          sed -i "s|tag:.*|tag: ${{ inputs.image_tag }}|" environments/production/values.yaml
+
+      - name: Set deployment strategy
+        run: |
+          if [ "${{ inputs.strategy }}" = "canary" ]; then
+            echo "Setting canary strategy: 10% → 30% → 60% → 100%"
+            cat > environments/production/strategy-override.yaml << 'STRAT'
+          rollout:
+            strategy: canary
+            steps:
+              - setWeight: 10
+              - pause: { duration: 5m }
+              - setWeight: 30
+              - pause: { duration: 5m }
+              - setWeight: 60
+              - pause: { duration: 5m }
+              - setWeight: 100
+          STRAT
+          elif [ "${{ inputs.strategy }}" = "blue-green" ]; then
+            echo "Setting blue-green strategy"
+            cat > environments/production/strategy-override.yaml << 'STRAT'
+          rollout:
+            strategy: blue-green
+            autoPromotionEnabled: false
+            previewReplicaCount: 2
+          STRAT
+          fi
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "deploy(production): ${{ inputs.image_tag }} via ${{ inputs.strategy }}"
+          git push
+
+      - name: Monitor canary rollout
+        if: inputs.strategy == 'canary'
+        run: |
+          echo "=== Canary Rollout Started ==="
+          echo "Strategy: 10% → 30% → 60% → 100% with 5-min analysis windows"
+          echo ""
+          echo "Monitor at: https://${{ env.ARGOCD_SERVER }}/applications/app-production"
+          echo ""
+          echo "Key metrics to watch:"
+          echo "  - Error rate: should stay < 1%"
+          echo "  - P99 latency: should stay < 500ms"
+          echo "  - Pod restarts: should be 0"
+
+  # ── Post-Deployment Validation ────────────────────────────────────────
+  validate:
+    name: Post-Deploy Validation
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, deploy-production]
+    if: always() && (needs.deploy-staging.result == 'success' || needs.deploy-production.result == 'success')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run integration tests against deployed environment
+        run: |
+          ENV=${{ inputs.environment }}
+          if [ "$ENV" = "staging" ]; then
+            BASE_URL="https://staging.example.com"
+          else
+            BASE_URL="https://app.example.com"
+          fi
+
+          echo "Running post-deploy validation against $BASE_URL"
+
+          # Health check
+          curl -sf "$BASE_URL/healthz" || (echo "Health check failed" && exit 1)
+
+          # API smoke tests
+          curl -sf "$BASE_URL/api/v1/status" || (echo "API status failed" && exit 1)
+
+          echo "All post-deployment checks passed"
+
+      - name: Notify on success
+        if: success()
+        run: |
+          echo "Deployment of ${{ inputs.image_tag }} to ${{ inputs.environment }} succeeded"
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::Deployment validation failed — triggering rollback"

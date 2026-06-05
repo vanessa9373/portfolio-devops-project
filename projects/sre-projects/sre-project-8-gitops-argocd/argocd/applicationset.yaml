@@ -1,0 +1,94 @@
+##############################################################################
+# ArgoCD ApplicationSet — Templatized multi-environment deployment
+#
+# Generates Application CRDs for each environment from a single template.
+# Reduces duplication and ensures consistency across environments.
+##############################################################################
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: sre-platform-apps
+  namespace: argocd
+spec:
+  generators:
+    # List generator — define each environment's config
+    - list:
+        elements:
+          - environment: dev
+            namespace: development
+            cluster: https://kubernetes.default.svc
+            autoSync: "true"
+            prune: "true"
+            replicas: "1"
+            values_file: values-dev.yaml
+
+          - environment: staging
+            namespace: staging
+            cluster: https://kubernetes.default.svc
+            autoSync: "true"
+            prune: "true"
+            replicas: "2"
+            values_file: values-staging.yaml
+
+          - environment: production
+            namespace: production
+            cluster: https://kubernetes.default.svc
+            autoSync: "false"
+            prune: "false"
+            replicas: "3"
+            values_file: values-production.yaml
+
+  template:
+    metadata:
+      name: "app-{{environment}}"
+      namespace: argocd
+      labels:
+        environment: "{{environment}}"
+        managed-by: applicationset
+      annotations:
+        notifications.argoproj.io/subscribe.on-sync-failed.slack: sre-alerts
+    spec:
+      project: default
+
+      source:
+        repoURL: https://github.com/example/gitops-manifests.git
+        targetRevision: main
+        path: "environments/{{environment}}"
+        helm:
+          valueFiles:
+            - "{{values_file}}"
+          parameters:
+            - name: replicaCount
+              value: "{{replicas}}"
+            - name: environment
+              value: "{{environment}}"
+
+      destination:
+        server: "{{cluster}}"
+        namespace: "{{namespace}}"
+
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+          - PrunePropagationPolicy=foreground
+
+  # Strategy for handling ApplicationSet changes
+  strategy:
+    type: RollingSync
+    rollingSync:
+      steps:
+        - matchExpressions:
+            - key: environment
+              operator: In
+              values:
+                - dev
+        - matchExpressions:
+            - key: environment
+              operator: In
+              values:
+                - staging
+        - matchExpressions:
+            - key: environment
+              operator: In
+              values:
+                - production

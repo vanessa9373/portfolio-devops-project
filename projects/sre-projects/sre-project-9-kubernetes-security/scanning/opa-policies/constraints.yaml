@@ -1,0 +1,126 @@
+##############################################################################
+# OPA Gatekeeper Constraints — Instantiate policy templates with parameters
+#
+# Enforcement modes:
+# - deny:     Block non-compliant resources (production)
+# - dryrun:   Log violations without blocking (staging rollout)
+# - warn:     Warn but allow (development)
+##############################################################################
+
+# ── Require Resource Limits (Production: deny, Staging: warn) ───────────
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredResources
+metadata:
+  name: require-resource-limits
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["production"]
+    excludedNamespaces: ["kube-system", "monitoring", "argocd"]
+
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredResources
+metadata:
+  name: warn-resource-limits-staging
+spec:
+  enforcementAction: warn
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["staging"]
+
+---
+# ── Block Privileged Containers ─────────────────────────────────────────
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sBlockPrivileged
+metadata:
+  name: block-privileged-containers
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    excludedNamespaces: ["kube-system"]
+
+---
+# ── Require Non-Root ────────────────────────────────────────────────────
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequireNonRoot
+metadata:
+  name: require-nonroot
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["production"]
+    excludedNamespaces: ["kube-system", "monitoring"]
+
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequireNonRoot
+metadata:
+  name: warn-nonroot-staging
+spec:
+  enforcementAction: warn
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["staging", "development"]
+
+---
+# ── Approved Container Registries ───────────────────────────────────────
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sApprovedRegistries
+metadata:
+  name: approved-registries
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    excludedNamespaces: ["kube-system", "kube-public"]
+  parameters:
+    registries:
+      - "123456789.dkr.ecr.us-east-1.amazonaws.com/"
+      - "ghcr.io/example-org/"
+      - "docker.io/library/"  # Official Docker Hub images only
+
+---
+# ── Block Latest Tag ───────────────────────────────────────────────────
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sBlockLatest
+metadata:
+  name: block-latest-tag
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["production", "staging"]
+    excludedNamespaces: ["kube-system"]
+
+---
+# ── Require Read-Only Root Filesystem ──────────────────────────────────
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sReadOnlyRootFs
+metadata:
+  name: require-readonly-rootfs
+spec:
+  enforcementAction: dryrun
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["production"]
+    excludedNamespaces: ["kube-system", "monitoring"]

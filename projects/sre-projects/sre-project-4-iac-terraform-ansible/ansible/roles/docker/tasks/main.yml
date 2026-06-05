@@ -1,0 +1,87 @@
+##############################################################################
+# Docker Role — Install and configure Docker Engine
+#
+# Applies to: webservers
+# Tasks: install Docker, configure daemon, add user to docker group
+##############################################################################
+---
+- name: Install Docker dependencies
+  ansible.builtin.dnf:
+    name:
+      - yum-utils
+      - device-mapper-persistent-data
+      - lvm2
+    state: present
+  tags: [docker]
+
+- name: Add Docker CE repository
+  ansible.builtin.command:
+    cmd: dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    creates: /etc/yum.repos.d/docker-ce.repo
+  tags: [docker]
+
+- name: Install Docker CE
+  ansible.builtin.dnf:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+    state: present
+  tags: [docker]
+
+- name: Create Docker config directory
+  ansible.builtin.file:
+    path: /etc/docker
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  tags: [docker]
+
+- name: Configure Docker daemon
+  ansible.builtin.template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart Docker
+  tags: [docker]
+
+- name: Start and enable Docker
+  ansible.builtin.systemd:
+    name: docker
+    state: started
+    enabled: true
+  tags: [docker]
+
+- name: Add ec2-user to docker group
+  ansible.builtin.user:
+    name: ec2-user
+    groups: docker
+    append: true
+  tags: [docker]
+
+- name: Install Docker Python SDK (for Ansible Docker modules)
+  ansible.builtin.pip:
+    name: docker
+    state: present
+  tags: [docker]
+
+- name: Configure Docker log rotation
+  ansible.builtin.copy:
+    dest: /etc/logrotate.d/docker
+    content: |
+      /var/lib/docker/containers/*/*.log {
+        rotate 7
+        daily
+        compress
+        missingok
+        delaycompress
+        copytruncate
+      }
+    owner: root
+    group: root
+    mode: "0644"
+  tags: [docker, logging]

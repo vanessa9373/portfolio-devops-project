@@ -1,0 +1,111 @@
+##############################################################################
+# ArgoCD Application CRDs — Define what ArgoCD manages
+#
+# Each Application maps a Git path to a K8s namespace, enabling
+# declarative, auditable, git-driven deployments.
+##############################################################################
+
+# ── Staging Application ─────────────────────────────────────────────────
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-staging
+  namespace: argocd
+  labels:
+    environment: staging
+    team: platform
+  annotations:
+    # Notifications
+    notifications.argoproj.io/subscribe.on-sync-succeeded.slack: sre-deploys
+    notifications.argoproj.io/subscribe.on-sync-failed.slack: sre-alerts
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/example/gitops-manifests.git
+    targetRevision: main
+    path: environments/staging
+    helm:
+      valueFiles:
+        - values.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: staging
+
+  syncPolicy:
+    # Auto-sync staging on every git push
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+  # Health checks
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas  # HPA manages replicas
+
+---
+# ── Production Application ──────────────────────────────────────────────
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-production
+  namespace: argocd
+  labels:
+    environment: production
+    team: platform
+  annotations:
+    notifications.argoproj.io/subscribe.on-sync-succeeded.slack: sre-deploys
+    notifications.argoproj.io/subscribe.on-sync-failed.slack: sre-alerts
+    notifications.argoproj.io/subscribe.on-health-degraded.slack: sre-alerts
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/example/gitops-manifests.git
+    targetRevision: main
+    path: environments/production
+    helm:
+      valueFiles:
+        - values.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: production
+
+  syncPolicy:
+    # Production requires MANUAL sync (no auto-sync)
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+      - RespectIgnoreDifferences=true
+    retry:
+      limit: 3
+      backoff:
+        duration: 10s
+        factor: 2
+        maxDuration: 5m
+
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas

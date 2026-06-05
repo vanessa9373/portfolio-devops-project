@@ -1,0 +1,281 @@
+##############################################################################
+# OpenTelemetry Collector — Trace & Log Pipeline
+#
+# The OTel Collector is the central hub for telemetry data:
+# - Receives traces via OTLP (gRPC/HTTP) and Jaeger protocols
+# - Processes: batches, adds attributes, samples
+# - Exports to Jaeger (traces) and Elasticsearch (trace logs)
+#
+# Architecture:
+#   App → OTLP → [OTel Collector] → Jaeger (traces)
+#                                  → Elasticsearch (trace metadata)
+#
+# Deploy: kubectl apply -f tracing/otel-collector/
+##############################################################################
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tracing
+  labels:
+    app.kubernetes.io/part-of: tracing-stack
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-config
+  namespace: tracing
+  labels:
+    app: otel-collector
+data:
+  config.yaml: |
+    # ── Receivers ─────────────────────────────────────────────────────
+    # Accept telemetry data from applications
+    receivers:
+      # OTLP — the standard OpenTelemetry protocol
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+
+      # Jaeger — accept Jaeger-native traces
+      jaeger:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:14250
+          thrift_http:
+            endpoint: 0.0.0.0:14268
+          thrift_compact:
+            endpoint: 0.0.0.0:6831
+
+      # Zipkin — accept Zipkin traces
+      zipkin:
+        endpoint: 0.0.0.0:9411
+
+      # Prometheus — scrape Collector's own metrics
+      prometheus:
+        config:
+          scrape_configs:
+            - job_name: otel-collector
+              scrape_interval: 15s
+              static_configs:
+                - targets: ["localhost:8888"]
+
+    # ── Processors ────────────────────────────────────────────────────
+    # Transform and enrich telemetry data
+    processors:
+      # Batch traces to reduce network overhead
+      batch:
+        timeout: 5s
+        send_batch_size: 512
+        send_batch_max_size: 1024
+
+      # Add resource attributes to all telemetry
+      resource:
+        attributes:
+          - key: environment
+            value: dev
+            action: upsert
+          - key: service.cluster
+            value: sre-logging
+            action: upsert
+
+      # Add span attributes for better querying
+      attributes:
+        actions:
+          - key: collector.name
+            value: otel-collector
+            action: upsert
+
+      # Memory limiter to prevent OOM
+      memory_limiter:
+        check_interval: 5s
+        limit_mib: 400
+        spike_limit_mib: 100
+
+      # Tail-based sampling (keep errors and slow traces)
+      # Uncomment for production to reduce trace volume
+      # tail_sampling:
+      #   decision_wait: 10s
+      #   policies:
+      #     - name: error-policy
+      #       type: status_code
+      #       status_code: {status_codes: [ERROR]}
+      #     - name: latency-policy
+      #       type: latency
+      #       latency: {threshold_ms: 500}
+      #     - name: sample-rate
+      #       type: probabilistic
+      #       probabilistic: {sampling_percentage: 10}
+
+    # ── Exporters ─────────────────────────────────────────────────────
+    # Send processed telemetry to backends
+    exporters:
+      # Jaeger — trace visualization
+      otlp/jaeger:
+        endpoint: jaeger-collector.tracing.svc.cluster.local:4317
+        tls:
+          insecure: true
+
+      # Elasticsearch — trace metadata for correlation with logs
+      elasticsearch:
+        endpoints: ["http://elasticsearch.logging.svc.cluster.local:9200"]
+        traces_index: trace-logs
+        flush:
+          bytes: 5000000
+
+      # Debug — print to stdout (useful for development)
+      debug:
+        verbosity: basic
+
+      # Prometheus — expose Collector metrics
+      prometheus:
+        endpoint: 0.0.0.0:8889
+        namespace: otel_collector
+
+    # ── Extensions ────────────────────────────────────────────────────
+    extensions:
+      # Health check endpoint
+      health_check:
+        endpoint: 0.0.0.0:13133
+
+      # Performance profiler
+      pprof:
+        endpoint: 0.0.0.0:1777
+
+      # zPages for debugging pipelines
+      zpages:
+        endpoint: 0.0.0.0:55679
+
+    # ── Service Pipeline ──────────────────────────────────────────────
+    # Wire receivers → processors → exporters
+    service:
+      extensions: [health_check, pprof, zpages]
+      telemetry:
+        logs:
+          level: info
+        metrics:
+          address: 0.0.0.0:8888
+
+      pipelines:
+        # Trace pipeline
+        traces:
+          receivers: [otlp, jaeger, zipkin]
+          processors: [memory_limiter, resource, attributes, batch]
+          exporters: [otlp/jaeger, elasticsearch, debug]
+
+        # Metrics pipeline (Collector self-monitoring)
+        metrics:
+          receivers: [prometheus]
+          processors: [batch]
+          exporters: [prometheus]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector
+  namespace: tracing
+  labels:
+    app: otel-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel-collector
+  template:
+    metadata:
+      labels:
+        app: otel-collector
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8889"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+        - name: otel-collector
+          image: otel/opentelemetry-collector-contrib:0.93.0
+          args:
+            - --config=/etc/otel/config.yaml
+          ports:
+            - containerPort: 4317    # OTLP gRPC
+              name: otlp-grpc
+            - containerPort: 4318    # OTLP HTTP
+              name: otlp-http
+            - containerPort: 14250   # Jaeger gRPC
+              name: jaeger-grpc
+            - containerPort: 14268   # Jaeger HTTP
+              name: jaeger-http
+            - containerPort: 6831    # Jaeger compact
+              name: jaeger-compact
+              protocol: UDP
+            - containerPort: 9411    # Zipkin
+              name: zipkin
+            - containerPort: 8888    # Collector metrics
+              name: metrics
+            - containerPort: 8889    # Prometheus exporter
+              name: prom-exporter
+            - containerPort: 13133   # Health check
+              name: health
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: config
+              mountPath: /etc/otel/
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 13133
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 13133
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: config
+          configMap:
+            name: otel-collector-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector
+  namespace: tracing
+  labels:
+    app: otel-collector
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4317
+      targetPort: 4317
+      name: otlp-grpc
+    - port: 4318
+      targetPort: 4318
+      name: otlp-http
+    - port: 14250
+      targetPort: 14250
+      name: jaeger-grpc
+    - port: 14268
+      targetPort: 14268
+      name: jaeger-http
+    - port: 6831
+      targetPort: 6831
+      name: jaeger-compact
+      protocol: UDP
+    - port: 9411
+      targetPort: 9411
+      name: zipkin
+    - port: 8889
+      targetPort: 8889
+      name: prom-exporter
+  selector:
+    app: otel-collector

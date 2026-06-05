@@ -1,0 +1,109 @@
+##############################################################################
+# Kibana — Log Visualization & Exploration
+#
+# Connects to Elasticsearch for log searching, dashboards, and alerting.
+# Access via: kubectl port-forward -n logging svc/kibana 5601:5601
+#
+# Deploy: kubectl apply -f logging/kibana/
+##############################################################################
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kibana-config
+  namespace: logging
+  labels:
+    app: kibana
+data:
+  kibana.yml: |
+    server.name: kibana
+    server.host: "0.0.0.0"
+    server.port: 5601
+
+    # Elasticsearch connection
+    elasticsearch.hosts: ["http://elasticsearch.logging.svc.cluster.local:9200"]
+    elasticsearch.requestTimeout: 30000
+
+    # Disable security for local dev
+    xpack.security.enabled: false
+    xpack.encryptedSavedObjects.encryptionKey: "sre-demo-encryption-key-32chars!"
+
+    # Monitoring
+    monitoring.ui.enabled: true
+
+    # Logging
+    logging.root.level: info
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  namespace: logging
+  labels:
+    app: kibana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kibana
+  template:
+    metadata:
+      labels:
+        app: kibana
+    spec:
+      containers:
+        - name: kibana
+          image: docker.elastic.co/kibana/kibana:8.12.0
+          env:
+            - name: ELASTICSEARCH_HOSTS
+              value: "http://elasticsearch.logging.svc.cluster.local:9200"
+            - name: xpack.security.enabled
+              value: "false"
+          ports:
+            - containerPort: 5601
+              name: http
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 500m
+              memory: 1Gi
+          volumeMounts:
+            - name: config
+              mountPath: /usr/share/kibana/config/kibana.yml
+              subPath: kibana.yml
+          readinessProbe:
+            httpGet:
+              path: /api/status
+              port: 5601
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/status
+              port: 5601
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            timeoutSeconds: 10
+      volumes:
+        - name: config
+          configMap:
+            name: kibana-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kibana
+  namespace: logging
+  labels:
+    app: kibana
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5601
+      targetPort: 5601
+      name: http
+  selector:
+    app: kibana

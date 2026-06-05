@@ -1,0 +1,52 @@
+##############################################################################
+# Default Deny — Block all traffic by default, then allow explicitly
+#
+# Zero-trust networking: every namespace starts with no connectivity.
+# Specific policies then open only the required paths.
+##############################################################################
+apiVersion: v1
+kind: List
+items:
+  # ── Production: Deny all ingress and egress ───────────────────────────
+  - apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: default-deny-all
+      namespace: production
+      labels:
+        policy: default-deny
+        environment: production
+    spec:
+      podSelector: {}
+      policyTypes:
+        - Ingress
+        - Egress
+
+  # ── Staging: Deny all ingress and egress ──────────────────────────────
+  - apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: default-deny-all
+      namespace: staging
+      labels:
+        policy: default-deny
+        environment: staging
+    spec:
+      podSelector: {}
+      policyTypes:
+        - Ingress
+        - Egress
+
+  # ── Development: Deny all ingress (egress open for dev flexibility) ───
+  - apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: default-deny-ingress
+      namespace: development
+      labels:
+        policy: default-deny
+        environment: development
+    spec:
+      podSelector: {}
+      policyTypes:
+        - Ingress

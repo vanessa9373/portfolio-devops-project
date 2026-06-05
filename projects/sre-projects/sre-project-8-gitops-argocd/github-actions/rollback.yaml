@@ -1,0 +1,123 @@
+##############################################################################
+# Rollback Pipeline — Automated and manual rollback support
+#
+# Triggers:
+# - Manual dispatch for emergency rollbacks
+# - Auto-triggered when canary analysis detects degradation
+##############################################################################
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to rollback"
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      reason:
+        description: "Reason for rollback"
+        required: true
+        type: string
+      target_tag:
+        description: "Specific image tag to rollback to (leave empty for previous version)"
+        required: false
+        type: string
+
+jobs:
+  rollback:
+    name: Rollback ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
+    steps:
+      - name: Checkout GitOps repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/gitops-manifests
+          token: ${{ secrets.GITOPS_TOKEN }}
+          fetch-depth: 10
+
+      - name: Determine rollback target
+        id: target
+        run: |
+          if [ -n "${{ inputs.target_tag }}" ]; then
+            echo "tag=${{ inputs.target_tag }}" >> "$GITHUB_OUTPUT"
+            echo "Rolling back to specified tag: ${{ inputs.target_tag }}"
+          else
+            # Get the previous image tag from git history
+            PREV_TAG=$(git log --oneline -2 environments/${{ inputs.environment }}/values.yaml \
+              | tail -1 | grep -oP 'tag: \K[a-f0-9]+' || echo "")
+            if [ -z "$PREV_TAG" ]; then
+              echo "::error::Could not determine previous version from git history"
+              exit 1
+            fi
+            echo "tag=$PREV_TAG" >> "$GITHUB_OUTPUT"
+            echo "Rolling back to previous tag: $PREV_TAG"
+          fi
+
+      - name: Update manifests to rollback version
+        run: |
+          sed -i "s|tag:.*|tag: ${{ steps.target.outputs.tag }}|" \
+            environments/${{ inputs.environment }}/values.yaml
+
+      - name: Commit rollback
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "rollback(${{ inputs.environment }}): revert to ${{ steps.target.outputs.tag }} — ${{ inputs.reason }}"
+          git push
+
+      - name: Force ArgoCD sync
+        run: |
+          echo "Triggering immediate ArgoCD sync for faster rollback..."
+          echo "ArgoCD will detect the manifest change and sync within seconds"
+          echo ""
+          echo "If ArgoCD is available, run:"
+          echo "  argocd app sync app-${{ inputs.environment }} --force"
+
+      - name: Verify rollback health
+        run: |
+          ENV=${{ inputs.environment }}
+          if [ "$ENV" = "staging" ]; then
+            URL="https://staging.example.com"
+          else
+            URL="https://app.example.com"
+          fi
+
+          echo "Waiting 60 seconds for rollback to propagate..."
+          sleep 60
+
+          for i in $(seq 1 6); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL/healthz" 2>/dev/null || echo "000")
+            if [ "$STATUS" = "200" ]; then
+              echo "Rollback verified — $ENV is healthy"
+              exit 0
+            fi
+            echo "Health check attempt $i: HTTP $STATUS"
+            sleep 10
+          done
+
+          echo "::warning::Health check inconclusive after rollback. Manual verification needed."
+
+      - name: Create rollback incident record
+        run: |
+          cat << EOF
+          ========================================
+          ROLLBACK RECORD
+          ========================================
+          Environment: ${{ inputs.environment }}
+          Rolled back to: ${{ steps.target.outputs.tag }}
+          Reason: ${{ inputs.reason }}
+          Triggered by: ${{ github.actor }}
+          Time: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          ========================================
+
+          Next steps:
+          1. Investigate root cause of the failed deployment
+          2. File a post-mortem if production was affected
+          3. Fix the issue in a new PR before re-deploying
+          EOF

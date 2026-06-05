@@ -1,0 +1,133 @@
+##############################################################################
+# Experiment: Network Packet Loss
+#
+# Hypothesis: The application handles network degradation with retries
+#             and graceful error handling (no cascading failures).
+# Validates: Retry logic, circuit breakers, timeout configuration, fallbacks.
+#
+# Expected Behavior:
+# - Some requests between services fail due to packet loss
+# - Services with retries recover automatically
+# - Circuit breakers open to prevent cascading failures
+# - Error rate increases but stays within SLO (if loss is moderate)
+##############################################################################
+---
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: network-loss-chaos
+  namespace: sre-demo
+  labels:
+    experiment: network-loss
+    severity: high
+spec:
+  engineState: active
+  appinfo:
+    appns: sre-demo
+    applabel: app=frontend
+    appkind: deployment
+  chaosServiceAccount: chaos-admin
+  experiments:
+    - name: pod-network-loss
+      spec:
+        components:
+          env:
+            - name: TOTAL_CHAOS_DURATION
+              value: "120"
+            # Percentage of packets to drop
+            - name: NETWORK_PACKET_LOSS_PERCENTAGE
+              value: "30"
+            # Target specific container (empty = all)
+            - name: TARGET_CONTAINER
+              value: ""
+            - name: PODS_AFFECTED_PERC
+              value: "100"
+            - name: CONTAINER_RUNTIME
+              value: containerd
+            - name: SOCKET_PATH
+              value: /run/containerd/containerd.sock
+        probe:
+          - name: error-rate-check
+            type: promProbe
+            mode: Continuous
+            promProbe/inputs:
+              endpoint: http://prometheus-operated.monitoring.svc.cluster.local:9090
+              query: sum(rate(http_requests_total{status=~"5..",namespace="sre-demo"}[1m])) / sum(rate(http_requests_total{namespace="sre-demo"}[1m]))
+              comparator:
+                type: float
+                criteria: "<="
+                value: "0.5"
+            runProperties:
+              probeTimeout: 10s
+              interval: 10s
+              retry: 3
+---
+# Manual execution alternative
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: network-loss-manual
+  namespace: sre-demo
+  labels:
+    experiment: network-loss
+    type: manual
+spec:
+  template:
+    spec:
+      serviceAccountName: chaos-admin
+      restartPolicy: Never
+      hostNetwork: false
+      containers:
+        - name: chaos-runner
+          image: bitnami/kubectl:latest
+          command:
+            - /bin/bash
+            - -c
+            - |
+              echo "=== Network Packet Loss Experiment ==="
+              echo "Target: frontend pods in sre-demo"
+              echo "Packet loss: 30%"
+              echo "Duration: 120s"
+              echo ""
+
+              # Get frontend pod
+              POD=$(kubectl get pods -n sre-demo -l app=frontend \
+                -o jsonpath='{.items[0].metadata.name}')
+
+              echo "[INFO] Target pod: $POD"
+              echo ""
+
+              # Test connectivity before chaos
+              echo "[BEFORE] Testing connectivity..."
+              kubectl exec -n sre-demo "$POD" -- wget -q -O /dev/null --timeout=5 \
+                http://productcatalogservice:3550/ 2>&1 && echo "  Connected OK" || echo "  Connection failed"
+              echo ""
+
+              # We can't inject tc from outside easily, so we'll simulate
+              # by rapidly scaling down/up a dependency
+              echo "[ACTION] Simulating network disruption..."
+              echo "[INFO] Scaling down productcatalogservice to 0 for 30s..."
+              kubectl scale deployment productcatalogservice -n sre-demo --replicas=0 2>/dev/null || true
+
+              echo "[INFO] Monitoring frontend behavior during disruption..."
+              for i in $(seq 1 6); do
+                sleep 5
+                READY=$(kubectl get pods -n sre-demo -l app=frontend -o jsonpath='{.items[*].status.conditions[?(@.type=="Ready")].status}')
+                echo "  [$(date -u '+%H:%M:%S')] Frontend ready: $READY"
+              done
+
+              # Restore
+              echo ""
+              echo "[ACTION] Restoring productcatalogservice..."
+              kubectl scale deployment productcatalogservice -n sre-demo --replicas=1 2>/dev/null || true
+
+              echo "[INFO] Waiting 30s for recovery..."
+              sleep 30
+
+              echo ""
+              echo "[AFTER] Testing connectivity..."
+              kubectl exec -n sre-demo "$POD" -- wget -q -O /dev/null --timeout=5 \
+                http://productcatalogservice:3550/ 2>&1 && echo "  Connected OK" || echo "  Connection failed"
+              echo ""
+              echo "=== Experiment Complete ==="
+  backoffLimit: 0

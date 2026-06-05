@@ -1,0 +1,99 @@
+##############################################################################
+# Trivy Operator — Continuous vulnerability scanning in the cluster
+#
+# Automatically scans:
+# - Container images for CVEs
+# - K8s configs for misconfigurations
+# - Secrets exposed in container images
+# - RBAC for over-permissive roles
+##############################################################################
+
+# Trivy Operator Helm values (install via: helm install trivy-operator aqua/trivy-operator)
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trivy-operator-config
+  namespace: trivy-system
+  labels:
+    app: trivy-operator
+data:
+  # Scan all namespaces except system ones
+  trivy.excludeNamespaces: "kube-system,kube-public,trivy-system"
+
+  # Severity filter for reports
+  trivy.severity: "CRITICAL,HIGH,MEDIUM"
+
+  # Scan on pod creation and on schedule
+  scanJob.podTemplateLabels: "app=trivy-scanner"
+
+  # Resource limits for scan jobs
+  scanJob.resources.requests.cpu: "100m"
+  scanJob.resources.requests.memory: "100Mi"
+  scanJob.resources.limits.cpu: "500m"
+  scanJob.resources.limits.memory: "500Mi"
+
+---
+##############################################################################
+# Example: View scan results via CRDs
+#
+# kubectl get vulnerabilityreports -A -o wide
+# kubectl get configauditreports -A -o wide
+# kubectl get rbacassessmentreports -A
+#
+# Get critical vulnerabilities:
+# kubectl get vulnerabilityreports -A -o json | jq '.items[] |
+#   select(.report.summary.criticalCount > 0) |
+#   {namespace: .metadata.namespace, name: .metadata.name,
+#    critical: .report.summary.criticalCount}'
+##############################################################################
+
+# ── AlertManager rule for critical vulnerabilities ──────────────────────
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: trivy-vulnerability-alerts
+  namespace: monitoring
+  labels:
+    app: trivy
+spec:
+  groups:
+    - name: trivy.rules
+      rules:
+        - alert: CriticalVulnerabilityDetected
+          expr: |
+            trivy_image_vulnerabilities{severity="Critical"} > 0
+          for: 5m
+          labels:
+            severity: critical
+            team: security
+          annotations:
+            summary: "Critical vulnerability found in {{ $labels.image_repository }}"
+            description: |
+              Image {{ $labels.image_repository }}:{{ $labels.image_tag }}
+              has {{ $value }} critical vulnerabilities.
+              Namespace: {{ $labels.namespace }}
+              Action: Patch immediately or replace the image.
+
+        - alert: HighVulnerabilityCount
+          expr: |
+            trivy_image_vulnerabilities{severity="High"} > 10
+          for: 1h
+          labels:
+            severity: warning
+            team: security
+          annotations:
+            summary: "High vulnerability count in {{ $labels.image_repository }}"
+            description: |
+              Image {{ $labels.image_repository }}:{{ $labels.image_tag }}
+              has {{ $value }} high-severity vulnerabilities.
+
+        - alert: ConfigMisconfiguration
+          expr: |
+            trivy_resource_configaudits{severity="Critical"} > 0
+          for: 5m
+          labels:
+            severity: warning
+            team: sre
+          annotations:
+            summary: "Critical misconfiguration in {{ $labels.resource_name }}"

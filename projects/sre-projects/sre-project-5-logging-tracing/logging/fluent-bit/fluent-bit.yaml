@@ -1,0 +1,313 @@
+##############################################################################
+# Fluent Bit — Log Collector (DaemonSet)
+#
+# Runs on every node, collects container logs, enriches with Kubernetes
+# metadata, parses structured logs, and ships to Elasticsearch.
+#
+# Why Fluent Bit over Fluentd?
+# - 10x lighter (~15MB vs ~150MB memory)
+# - Written in C (faster)
+# - Built-in Kubernetes filter
+# - Perfect for edge/node-level log collection
+#
+# Deploy: kubectl apply -f logging/fluent-bit/
+##############################################################################
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fluent-bit
+  namespace: logging
+  labels:
+    app: fluent-bit
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: fluent-bit
+  labels:
+    app: fluent-bit
+rules:
+  - apiGroups: [""]
+    resources:
+      - namespaces
+      - pods
+      - pods/logs
+      - nodes
+      - nodes/proxy
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: fluent-bit
+  labels:
+    app: fluent-bit
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: fluent-bit
+subjects:
+  - kind: ServiceAccount
+    name: fluent-bit
+    namespace: logging
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluent-bit-config
+  namespace: logging
+  labels:
+    app: fluent-bit
+data:
+  # ── Main Configuration ───────────────────────────────────────────────
+  fluent-bit.conf: |
+    [SERVICE]
+        Flush         5
+        Log_Level     info
+        Daemon        off
+        Parsers_File  parsers.conf
+        HTTP_Server   On
+        HTTP_Listen   0.0.0.0
+        HTTP_Port     2020
+        Health_Check  On
+
+    # ── INPUT: Read container logs from node filesystem ─────────────────
+    [INPUT]
+        Name              tail
+        Tag               kube.*
+        Path              /var/log/containers/*.log
+        Parser            cri
+        DB                /var/log/flb_kube.db
+        Mem_Buf_Limit     10MB
+        Skip_Long_Lines   On
+        Refresh_Interval  5
+
+    # ── INPUT: Read system logs ─────────────────────────────────────────
+    [INPUT]
+        Name              systemd
+        Tag               systemd.*
+        Systemd_Filter    _SYSTEMD_UNIT=kubelet.service
+        Read_From_Tail    On
+        Strip_Underscores On
+
+    # ── FILTER: Enrich with Kubernetes metadata ─────────────────────────
+    [FILTER]
+        Name                kubernetes
+        Match               kube.*
+        Kube_URL            https://kubernetes.default.svc:443
+        Kube_CA_File        /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        Kube_Token_File     /var/run/secrets/kubernetes.io/serviceaccount/token
+        Kube_Tag_Prefix     kube.var.log.containers.
+        Merge_Log           On
+        Merge_Log_Key       log_processed
+        Keep_Log            Off
+        K8S-Logging.Parser  On
+        K8S-Logging.Exclude On
+        Labels              On
+        Annotations         Off
+
+    # ── FILTER: Add hostname ────────────────────────────────────────────
+    [FILTER]
+        Name    modify
+        Match   *
+        Add     node ${HOSTNAME}
+        Add     cluster sre-logging
+
+    # ── FILTER: Parse JSON logs ─────────────────────────────────────────
+    [FILTER]
+        Name         parser
+        Match        kube.*
+        Key_Name     log
+        Parser       json
+        Reserve_Data On
+        Preserve_Key On
+
+    # ── FILTER: Remove noisy namespaces ─────────────────────────────────
+    [FILTER]
+        Name    grep
+        Match   kube.*
+        Exclude $kubernetes['namespace_name'] kube-system
+
+    # ── OUTPUT: Send to Elasticsearch ───────────────────────────────────
+    [OUTPUT]
+        Name            es
+        Match           kube.*
+        Host            elasticsearch.logging.svc.cluster.local
+        Port            9200
+        Logstash_Format On
+        Logstash_Prefix k8s-logs
+        Retry_Limit     5
+        Replace_Dots    On
+        Suppress_Type_Name On
+        tls             Off
+        Buffer_Size     512KB
+        Generate_ID     On
+
+    # ── OUTPUT: System logs to separate index ───────────────────────────
+    [OUTPUT]
+        Name            es
+        Match           systemd.*
+        Host            elasticsearch.logging.svc.cluster.local
+        Port            9200
+        Logstash_Format On
+        Logstash_Prefix system-logs
+        Retry_Limit     5
+        Suppress_Type_Name On
+
+    # ── OUTPUT: Prometheus metrics endpoint ──────────────────────────────
+    [OUTPUT]
+        Name            prometheus_exporter
+        Match           *
+        Host            0.0.0.0
+        Port            2021
+
+  # ── Parsers Configuration ────────────────────────────────────────────
+  parsers.conf: |
+    # CRI log format (containerd)
+    [PARSER]
+        Name        cri
+        Format      regex
+        Regex       ^(?<time>[^ ]+) (?<stream>stdout|stderr) (?<logtag>[^ ]*) (?<log>.*)$
+        Time_Key    time
+        Time_Format %Y-%m-%dT%H:%M:%S.%L%z
+
+    # Standard JSON parser
+    [PARSER]
+        Name        json
+        Format      json
+        Time_Key    timestamp
+        Time_Format %Y-%m-%dT%H:%M:%S.%L%z
+
+    # Nginx access log
+    [PARSER]
+        Name        nginx
+        Format      regex
+        Regex       ^(?<remote>[^ ]*) (?<host>[^ ]*) (?<user>[^ ]*) \[(?<time>[^\]]*)\] "(?<method>\S+)(?: +(?<path>[^\"]*?)(?: +\S*)?)?" (?<code>[^ ]*) (?<size>[^ ]*)(?: "(?<referer>[^\"]*)" "(?<agent>[^\"]*)")?$
+        Time_Key    time
+        Time_Format %d/%b/%Y:%H:%M:%S %z
+
+    # Python/Flask log format
+    [PARSER]
+        Name        python
+        Format      regex
+        Regex       ^(?<time>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}) (?<level>\S+) (?<message>.*)$
+        Time_Key    time
+        Time_Format %Y-%m-%d %H:%M:%S,%L
+
+    # Go log format (microservices-demo)
+    [PARSER]
+        Name        go
+        Format      regex
+        Regex       ^(?<time>\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}) (?<message>.*)$
+        Time_Key    time
+        Time_Format %Y/%m/%d %H:%M:%S
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluent-bit
+  namespace: logging
+  labels:
+    app: fluent-bit
+spec:
+  selector:
+    matchLabels:
+      app: fluent-bit
+  template:
+    metadata:
+      labels:
+        app: fluent-bit
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "2021"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: fluent-bit
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+        - key: node-role.kubernetes.io/control-plane
+          effect: NoSchedule
+      containers:
+        - name: fluent-bit
+          image: fluent/fluent-bit:2.2
+          env:
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          ports:
+            - containerPort: 2020
+              name: http
+            - containerPort: 2021
+              name: metrics
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          volumeMounts:
+            - name: config
+              mountPath: /fluent-bit/etc/
+            - name: varlog
+              mountPath: /var/log
+              readOnly: true
+            - name: varlogcontainers
+              mountPath: /var/log/containers
+              readOnly: true
+            - name: varlibdockercontainers
+              mountPath: /var/lib/docker/containers
+              readOnly: true
+            - name: runlogjournal
+              mountPath: /run/log/journal
+              readOnly: true
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 2020
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /api/v1/health
+              port: 2020
+            initialDelaySeconds: 10
+            periodSeconds: 15
+      volumes:
+        - name: config
+          configMap:
+            name: fluent-bit-config
+        - name: varlog
+          hostPath:
+            path: /var/log
+        - name: varlogcontainers
+          hostPath:
+            path: /var/log/containers
+        - name: varlibdockercontainers
+          hostPath:
+            path: /var/lib/docker/containers
+        - name: runlogjournal
+          hostPath:
+            path: /run/log/journal
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fluent-bit
+  namespace: logging
+  labels:
+    app: fluent-bit
+spec:
+  type: ClusterIP
+  ports:
+    - port: 2020
+      targetPort: 2020
+      name: http
+    - port: 2021
+      targetPort: 2021
+      name: metrics
+  selector:
+    app: fluent-bit
