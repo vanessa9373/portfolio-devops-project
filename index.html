@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="SA · SE · Pre-Sales project portfolio by Vanessa Awo — architecture scenarios, SRE platforms, DevOps pipelines, and pre-sales demos.">
-  <title>SA · SE · Pre-Sales Projects | Vanessa Awo</title>
+  <meta name="description" content="Vanessa Awo — Solutions Architect · Solutions Engineer · Pre-Sales SE. Cloud portfolio demonstrating SA design, SE demos, and pre-sales value framing.">
+  <title>SA · SE · Pre-Sales Portfolio | Vanessa Awo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -23,12 +23,11 @@
         <span class="logo-text">Vanessa Awo</span>
       </a>
       <div class="nav-links">
-        <a href="https://jenellavan.com" class="nav-link">Portfolio</a>
-        <a href="#sa-projects" class="nav-link">SA Projects</a>
-        <a href="#sre-projects" class="nav-link">SRE Projects</a>
-        <a href="#demos" class="nav-link">Live Demos</a>
+        <a href="#sa" class="nav-link nav-link--sa">SA</a>
+        <a href="#se" class="nav-link nav-link--se">SE</a>
+        <a href="#presales" class="nav-link nav-link--ps">Pre-Sales</a>
         <a href="#labs" class="nav-link">Labs</a>
-        <a href="https://vanessa9373.github.io/my-portfolio-projects/" target="_blank" rel="noopener" class="nav-link">Cloud Infra ↗</a>
+        <a href="https://vanessa9373.github.io/my-portfolio-projects/" target="_blank" rel="noopener" class="nav-link">Infra ↗</a>
         <a href="https://jenellavan.com#contact" class="nav-cta">Hire Me</a>
       </div>
     </div>
@@ -38,532 +37,677 @@
   <header class="hero">
     <div class="hero-bg"></div>
     <div class="container hero-content">
-      <div class="hero-role-row">
-        <span class="role-pill role-pill--sa">Solutions Architect</span>
-        <span class="role-pill role-pill--se">Solutions Engineer</span>
-        <span class="role-pill role-pill--ps">Pre-Sales SE</span>
+      <p class="hero-eyebrow">Cloud Portfolio — AWS SAA-C03 Certified</p>
+      <h1 class="hero-title">I Design. I Demo.<br><span class="gradient-text">I Close the Deal.</span></h1>
+      <p class="hero-sub">Solutions Architect who designs cloud systems from first principles · Solutions Engineer who builds POCs that win deals · Pre-Sales SE who quantifies business value and speaks the customer's language.</p>
+
+      <div class="role-nav">
+        <a href="#sa" class="role-card role-card--sa">
+          <div class="role-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <div class="role-card-label">SA</div>
+          <div class="role-card-title">Solutions Architect</div>
+          <div class="role-card-desc">9 architecture scenarios — multi-region, serverless, FinTech, SaaS, media. Deep technical design with trade-off analysis.</div>
+          <div class="role-card-cta">View SA Work →</div>
+        </a>
+        <a href="#se" class="role-card role-card--se">
+          <div class="role-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <div class="role-card-label">SE</div>
+          <div class="role-card-title">Solutions Engineer</div>
+          <div class="role-card-desc">Live demos, POCs, and technical projects framed for prospect conversations. Built to show, not just explain.</div>
+          <div class="role-card-cta">View SE Work →</div>
+        </a>
+        <a href="#presales" class="role-card role-card--ps">
+          <div class="role-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div class="role-card-label">Pre-Sales</div>
+          <div class="role-card-title">Pre-Sales SE</div>
+          <div class="role-card-desc">Value stories, ROI quantification, and a cost savings calculator. I speak in business outcomes, not just architecture diagrams.</div>
+          <div class="role-card-cta">View Pre-Sales Work →</div>
+        </a>
       </div>
-      <h1 class="hero-title">Architecture Scenarios.<br><span class="gradient-text">Built for Real Deals.</span></h1>
-      <p class="hero-sub">SA architecture deep-dives · SRE platforms · DevOps pipelines · Live demos for pre-sales conversations</p>
-      <div class="hero-actions">
-        <a href="#sa-projects" class="btn-primary">SA Projects</a>
-        <a href="#sre-projects" class="btn-ghost">SRE Projects</a>
-        <a href="#labs" class="btn-ghost btn-ghost--purple">19 Labs</a>
-      </div>
+
       <div class="hero-stats">
-        <div class="stat"><span class="stat-num">9</span><span class="stat-label">SA Architecture Scenarios</span></div>
+        <div class="stat"><span class="stat-num" style="color:var(--cyan)">9</span><span class="stat-label">SA Scenarios</span></div>
         <div class="stat-divider"></div>
-        <div class="stat"><span class="stat-num">9</span><span class="stat-label">SRE Projects</span></div>
+        <div class="stat"><span class="stat-num" style="color:var(--purple)">3+</span><span class="stat-label">Live Demos</span></div>
         <div class="stat-divider"></div>
-        <div class="stat"><span class="stat-num">19</span><span class="stat-label">DevOps Labs</span></div>
+        <div class="stat"><span class="stat-num" style="color:var(--green)">90%</span><span class="stat-label">Cost Reduction POC</span></div>
         <div class="stat-divider"></div>
-        <div class="stat"><span class="stat-num">AWS</span><span class="stat-label">SAA-C03 Certified</span></div>
+        <div class="stat"><span class="stat-num" style="color:var(--orange)">AWS</span><span class="stat-label">SAA-C03</span></div>
       </div>
     </div>
   </header>
 
-  <!-- SA PROJECTS -->
-  <section class="section" id="sa-projects">
+  <!-- ══════════════════════════════════════════════ -->
+  <!--  SA — SOLUTIONS ARCHITECT                      -->
+  <!-- ══════════════════════════════════════════════ -->
+  <section class="section" id="sa">
     <div class="container">
-      <div class="section-header">
-        <div class="section-badge badge--sa">Solutions Architect</div>
-        <h2 class="section-title">SA Architecture Scenarios</h2>
-        <p class="section-sub">Real-world client scenarios — each built to answer "how would you architect this?" in an SA interview or customer call</p>
+      <div class="role-section-header role-section-header--sa">
+        <div class="role-section-pill pill--sa">Solutions Architect</div>
+        <h2 class="section-title">I design cloud systems from first principles.</h2>
+        <p class="section-sub">Each scenario below is a real-world client problem — architecture designed to meet specific availability, compliance, cost, and scale requirements. I can walk through any of these on a whiteboard.</p>
+        <div class="sa-proof-row">
+          <span class="proof-chip">AWS Well-Architected (6 pillars)</span>
+          <span class="proof-chip">Multi-region DR</span>
+          <span class="proof-chip">Serverless & containers</span>
+          <span class="proof-chip">Regulated industries (FinTech, Healthcare)</span>
+          <span class="proof-chip">Cost optimization</span>
+        </div>
       </div>
 
-      <!-- SA Filter -->
       <div class="filter-row">
-        <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="ecommerce">E-Commerce</button>
-        <button class="filter-btn" data-filter="saas">SaaS</button>
-        <button class="filter-btn" data-filter="fintech">FinTech</button>
-        <button class="filter-btn" data-filter="serverless">Serverless</button>
-        <button class="filter-btn" data-filter="containers">Containers</button>
-        <button class="filter-btn" data-filter="media">Media</button>
+        <button class="filter-btn active" data-sa-filter="all">All</button>
+        <button class="filter-btn" data-sa-filter="ecommerce">E-Commerce</button>
+        <button class="filter-btn" data-sa-filter="saas">SaaS</button>
+        <button class="filter-btn" data-sa-filter="fintech">FinTech</button>
+        <button class="filter-btn" data-sa-filter="serverless">Serverless</button>
+        <button class="filter-btn" data-sa-filter="containers">Containers</button>
+        <button class="filter-btn" data-sa-filter="media">Media</button>
       </div>
 
       <div class="cards-grid" id="sa-grid">
 
-        <!-- Project 1: Multi-Region E-Commerce -->
         <div class="proj-card" data-tags="ecommerce">
           <div class="proj-card-header">
             <div class="proj-scenario">Retail · Flash Sales · 50K concurrent users</div>
-            <div class="proj-badges">
-              <span class="badge badge--diff-adv">Advanced</span>
-              <span class="badge badge--pci">PCI-DSS</span>
-            </div>
+            <div class="proj-badges"><span class="badge badge--diff-adv">Advanced</span><span class="badge badge--pci">PCI-DSS</span></div>
           </div>
           <h3 class="proj-title">Multi-Region E-Commerce Platform</h3>
-          <p class="proj-client"><strong>Client:</strong> ShopFast — retail startup losing $140K/outage during flash sales</p>
+          <p class="proj-client"><strong>Client problem:</strong> ShopFast losing $140K per outage during Friday flash sales — 10x traffic spikes taking the site down.</p>
           <div class="proj-reqs">
-            <span class="req-chip">99.99% availability</span>
-            <span class="req-chip">RTO &lt;15 min</span>
-            <span class="req-chip">50K concurrent users</span>
-            <span class="req-chip">Multi-region DR</span>
+            <span class="req-chip">99.99% availability</span><span class="req-chip">RTO &lt;15 min</span><span class="req-chip">50K concurrent</span><span class="req-chip">us-east-1 + us-west-2</span>
           </div>
           <div class="proj-stack">
-            <span class="tag tag-aws">Route 53</span>
-            <span class="tag tag-aws">CloudFront</span>
-            <span class="tag">EKS</span>
-            <span class="tag">Aurora Global</span>
-            <span class="tag">ElastiCache</span>
-            <span class="tag">WAF</span>
+            <span class="tag tag-aws">Route 53</span><span class="tag tag-aws">CloudFront</span><span class="tag">EKS</span><span class="tag">Aurora Global</span><span class="tag">ElastiCache</span><span class="tag">WAF</span>
           </div>
-          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-1-ecommerce-platform" target="_blank" rel="noopener" class="proj-link">
-            View Architecture <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </a>
+          <div class="role-angles">
+            <div class="angle angle--sa"><strong>SA:</strong> Multi-region active-active with Aurora Global DB replication &lt;1s RPO</div>
+            <div class="angle angle--se"><strong>SE:</strong> "I can demo this architecture live — here's how auto-scaling absorbs a 10x spike without manual intervention"</div>
+          </div>
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-1-ecommerce-platform" target="_blank" rel="noopener" class="proj-link">View Architecture →</a>
         </div>
 
-        <!-- Project 2: SaaS Multi-Tenant -->
         <div class="proj-card" data-tags="saas">
           <div class="proj-card-header">
             <div class="proj-scenario">B2B SaaS · Multi-Tenant · Series A</div>
-            <div class="proj-badges">
-              <span class="badge badge--diff-adv">Advanced</span>
-            </div>
+            <div class="proj-badges"><span class="badge badge--diff-adv">Advanced</span></div>
           </div>
           <h3 class="proj-title">Serverless SaaS Multi-Tenant Platform</h3>
-          <p class="proj-client"><strong>Client:</strong> FormFlow — form-builder scaling from 500 → 50K tenants pre-Series A</p>
+          <p class="proj-client"><strong>Client problem:</strong> FormFlow needs to scale from 500 → 50,000 tenants without a full rebuild before Series A.</p>
           <div class="proj-reqs">
-            <span class="req-chip">10K req/sec peak</span>
-            <span class="req-chip">Tenant data isolation</span>
-            <span class="req-chip">Tiered billing</span>
-            <span class="req-chip">Zero downtime deploys</span>
+            <span class="req-chip">10K req/sec</span><span class="req-chip">Tenant data isolation</span><span class="req-chip">Tiered billing</span><span class="req-chip">Zero downtime</span>
           </div>
           <div class="proj-stack">
-            <span class="tag tag-aws">Lambda</span>
-            <span class="tag tag-aws">API Gateway</span>
-            <span class="tag">DynamoDB</span>
-            <span class="tag">Cognito</span>
-            <span class="tag">SQS</span>
-            <span class="tag">EventBridge</span>
+            <span class="tag tag-aws">Lambda</span><span class="tag tag-aws">API Gateway</span><span class="tag">DynamoDB</span><span class="tag">Cognito</span><span class="tag">SQS</span><span class="tag">EventBridge</span>
           </div>
-          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-2-saas-platform" target="_blank" rel="noopener" class="proj-link">
-            View Architecture <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </a>
+          <div class="role-angles">
+            <div class="angle angle--sa"><strong>SA:</strong> Silo vs. pool vs. bridge tenant isolation trade-offs — chose bridge model for cost + compliance balance</div>
+            <div class="angle angle--se"><strong>SE:</strong> "This is the architecture I'd propose for any B2B SaaS prospect asking 'how do we scale without rearchitecting?'"</div>
+          </div>
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-2-saas-platform" target="_blank" rel="noopener" class="proj-link">View Architecture →</a>
         </div>
 
-        <!-- Project 3: FinTech Data Lake -->
         <div class="proj-card" data-tags="fintech">
           <div class="proj-card-header">
-            <div class="proj-scenario">FinTech · Regulated · PCI-DSS · SOC 2</div>
-            <div class="proj-badges">
-              <span class="badge badge--diff-adv">Advanced</span>
-              <span class="badge badge--pci">PCI-DSS</span>
-            </div>
+            <div class="proj-scenario">FinTech · PCI-DSS · SOC 2 · $2B/yr transactions</div>
+            <div class="proj-badges"><span class="badge badge--diff-adv">Advanced</span><span class="badge badge--pci">PCI-DSS</span></div>
           </div>
           <h3 class="proj-title">Secure FinTech Data Lake &amp; Analytics Platform</h3>
-          <p class="proj-client"><strong>Client:</strong> ClearPay — payments FinTech processing $2B/yr, 6 siloed data systems</p>
+          <p class="proj-client"><strong>Client problem:</strong> ClearPay analysts querying production databases directly — slowing live systems and creating compliance violations.</p>
           <div class="proj-reqs">
-            <span class="req-chip">500GB/day ingest</span>
-            <span class="req-chip">Row/column security</span>
-            <span class="req-chip">7-year retention</span>
-            <span class="req-chip">Query &lt;30s</span>
+            <span class="req-chip">500GB/day ingest</span><span class="req-chip">Row/column security</span><span class="req-chip">7-year retention</span><span class="req-chip">Query &lt;30s</span>
           </div>
           <div class="proj-stack">
-            <span class="tag tag-aws">S3</span>
-            <span class="tag tag-aws">Glue</span>
-            <span class="tag">Athena</span>
-            <span class="tag">Lake Formation</span>
-            <span class="tag">Kinesis</span>
-            <span class="tag">Macie</span>
+            <span class="tag tag-aws">S3</span><span class="tag tag-aws">Glue</span><span class="tag">Athena</span><span class="tag">Lake Formation</span><span class="tag">Kinesis</span><span class="tag">Macie</span>
           </div>
-          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-3-fintech-data-lake" target="_blank" rel="noopener" class="proj-link">
-            View Architecture <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </a>
+          <div class="role-angles">
+            <div class="angle angle--sa"><strong>SA:</strong> Lake Formation row/column-level security — analysts see aggregates, compliance sees everything, PII masked by default</div>
+            <div class="angle angle--se"><strong>SE:</strong> "This is the exact conversation I'd have with a FinTech CISO — here's how we satisfy the auditor without slowing the data team"</div>
+          </div>
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-3-fintech-data-lake" target="_blank" rel="noopener" class="proj-link">View Architecture →</a>
         </div>
 
-        <!-- Project 4: Media Platform -->
         <div class="proj-card" data-tags="media">
           <div class="proj-card-header">
-            <div class="proj-scenario">Media · Video-on-Demand · Global CDN</div>
-            <div class="proj-badges">
-              <span class="badge badge--diff-adv">Advanced</span>
-            </div>
+            <div class="proj-scenario">Video-on-Demand · Global · DRM</div>
+            <div class="proj-badges"><span class="badge badge--diff-adv">Advanced</span></div>
           </div>
           <h3 class="proj-title">Global Media Streaming &amp; Content Delivery</h3>
-          <p class="proj-client"><strong>Client:</strong> Video-on-demand media company scaling to global audiences</p>
+          <p class="proj-client"><strong>Client problem:</strong> Video-on-demand platform with buffering issues in APAC — global latency and content protection gaps.</p>
           <div class="proj-reqs">
-            <span class="req-chip">Global low latency</span>
-            <span class="req-chip">Adaptive bitrate</span>
-            <span class="req-chip">DRM protection</span>
-            <span class="req-chip">Cost-optimized storage</span>
+            <span class="req-chip">Global low latency</span><span class="req-chip">Adaptive bitrate</span><span class="req-chip">DRM protection</span><span class="req-chip">Cost-optimized storage</span>
           </div>
           <div class="proj-stack">
-            <span class="tag tag-aws">CloudFront</span>
-            <span class="tag tag-aws">MediaConvert</span>
-            <span class="tag">S3</span>
-            <span class="tag">Elemental</span>
-            <span class="tag">Lambda@Edge</span>
+            <span class="tag tag-aws">CloudFront</span><span class="tag tag-aws">MediaConvert</span><span class="tag">S3</span><span class="tag">Elemental</span><span class="tag">Lambda@Edge</span>
           </div>
-          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-4-media-platform" target="_blank" rel="noopener" class="proj-link">
-            View Architecture <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </a>
+          <div class="role-angles">
+            <div class="angle angle--sa"><strong>SA:</strong> CloudFront edge + MediaConvert adaptive bitrate — viewer gets correct quality for their bandwidth automatically</div>
+            <div class="angle angle--se"><strong>SE:</strong> "The business case: S3 Intelligent-Tiering cuts storage cost 40% while CloudFront reduces origin load 80%"</div>
+          </div>
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-4-media-platform" target="_blank" rel="noopener" class="proj-link">View Architecture →</a>
         </div>
 
-        <!-- Project 4b: PixelVault -->
         <div class="proj-card" data-tags="media saas">
           <div class="proj-card-header">
             <div class="proj-scenario">Social · 10M MAU · Consumer Platform</div>
-            <div class="proj-badges">
-              <span class="badge badge--diff-adv">Advanced</span>
-            </div>
+            <div class="proj-badges"><span class="badge badge--diff-adv">Advanced</span></div>
           </div>
           <h3 class="proj-title">PixelVault — Global Image Sharing Platform</h3>
-          <p class="proj-client"><strong>Client:</strong> 10M Monthly Active Users image-sharing social platform</p>
+          <p class="proj-client"><strong>Client problem:</strong> 10M MAU image platform — upload latency, storage cost, and content moderation at scale.</p>
           <div class="proj-reqs">
-            <span class="req-chip">10M MAU</span>
-            <span class="req-chip">Global distribution</span>
-            <span class="req-chip">Image processing pipeline</span>
-            <span class="req-chip">Cost efficiency</span>
+            <span class="req-chip">10M MAU</span><span class="req-chip">Global distribution</span><span class="req-chip">Image processing pipeline</span><span class="req-chip">Content moderation</span>
           </div>
           <div class="proj-stack">
-            <span class="tag tag-aws">CloudFront</span>
-            <span class="tag tag-aws">S3</span>
-            <span class="tag">Lambda</span>
-            <span class="tag">Aurora Serverless</span>
-            <span class="tag">Rekognition</span>
+            <span class="tag tag-aws">CloudFront</span><span class="tag tag-aws">S3</span><span class="tag">Lambda</span><span class="tag">Aurora Serverless</span><span class="tag">Rekognition</span>
           </div>
-          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-6-pixelvault-platform" target="_blank" rel="noopener" class="proj-link">
-            View Architecture <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </a>
+          <div class="role-angles">
+            <div class="angle angle--sa"><strong>SA:</strong> Event-driven image pipeline — S3 upload triggers Lambda → Rekognition moderation → multi-size thumbnail generation</div>
+            <div class="angle angle--se"><strong>SE:</strong> "Rekognition auto-moderation eliminates the need for a manual moderation team — direct cost removal, not just optimization"</div>
+          </div>
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-6-pixelvault-platform" target="_blank" rel="noopener" class="proj-link">View Architecture →</a>
         </div>
 
-        <!-- Project 5: Ride-Sharing -->
         <div class="proj-card" data-tags="saas ecommerce">
           <div class="proj-card-header">
             <div class="proj-scenario">Transportation · Real-Time · Marketplace</div>
-            <div class="proj-badges">
-              <span class="badge badge--diff-adv">Advanced</span>
-            </div>
+            <div class="proj-badges"><span class="badge badge--diff-adv">Advanced</span></div>
           </div>
           <h3 class="proj-title">Real-Time Ride-Sharing &amp; Location Tracking</h3>
-          <p class="proj-client"><strong>Client:</strong> Transportation startup — real-time GPS, driver-rider matching, surge pricing</p>
+          <p class="proj-client"><strong>Client problem:</strong> Ride-sharing startup needing real-time GPS matching at &lt;100ms — existing REST API too slow for live location updates.</p>
           <div class="proj-reqs">
-            <span class="req-chip">Real-time location</span>
-            <span class="req-chip">WebSocket connections</span>
-            <span class="req-chip">Geospatial queries</span>
-            <span class="req-chip">Sub-100ms matching</span>
+            <span class="req-chip">Real-time location</span><span class="req-chip">WebSocket</span><span class="req-chip">Geospatial queries</span><span class="req-chip">&lt;100ms matching</span>
           </div>
           <div class="proj-stack">
-            <span class="tag tag-aws">API Gateway WS</span>
-            <span class="tag tag-aws">Kinesis</span>
-            <span class="tag">OpenSearch</span>
-            <span class="tag">AppSync</span>
-            <span class="tag">SNS</span>
+            <span class="tag tag-aws">API Gateway WS</span><span class="tag tag-aws">Kinesis</span><span class="tag">OpenSearch</span><span class="tag">AppSync</span><span class="tag">SNS</span>
           </div>
-          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-5-ridesharing-platform" target="_blank" rel="noopener" class="proj-link">
-            View Architecture <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </a>
+          <div class="role-angles">
+            <div class="angle angle--sa"><strong>SA:</strong> WebSocket API + Kinesis for real-time streams — OpenSearch geo_distance queries for nearest driver matching</div>
+            <div class="angle angle--se"><strong>SE:</strong> "The key question I asked: polling vs. push? WebSocket cuts location update cost 70% vs. 1-second REST polling"</div>
+          </div>
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-5-ridesharing-platform" target="_blank" rel="noopener" class="proj-link">View Architecture →</a>
         </div>
 
-        <!-- Project 5b: Serverless Event-Driven -->
         <div class="proj-card" data-tags="serverless">
           <div class="proj-card-header">
-            <div class="proj-scenario">Serverless · Event-Driven · Entry Level</div>
-            <div class="proj-badges">
-              <span class="badge badge--diff-entry">Entry Level</span>
-            </div>
+            <div class="proj-scenario">Serverless · Entry-Level · Full Stack</div>
+            <div class="proj-badges"><span class="badge badge--diff-entry">Entry Level</span></div>
           </div>
           <h3 class="proj-title">Serverless Event-Driven Web Application</h3>
-          <p class="proj-client"><strong>Focus:</strong> Core serverless pattern — API Gateway + Lambda + DynamoDB + S3 static hosting</p>
+          <p class="proj-client"><strong>Focus:</strong> Core serverless pattern walkthrough — the "starter architecture" I'd recommend for 80% of early-stage SaaS prospects.</p>
           <div class="proj-reqs">
-            <span class="req-chip">Zero servers</span>
-            <span class="req-chip">Auto-scaling</span>
-            <span class="req-chip">Pay-per-use</span>
-            <span class="req-chip">CI/CD pipeline</span>
+            <span class="req-chip">Zero servers</span><span class="req-chip">Auto-scaling</span><span class="req-chip">Pay-per-use</span><span class="req-chip">CI/CD</span>
           </div>
           <div class="proj-stack">
-            <span class="tag tag-aws">Lambda</span>
-            <span class="tag tag-aws">API Gateway</span>
-            <span class="tag">DynamoDB</span>
-            <span class="tag">S3</span>
-            <span class="tag">CloudFront</span>
-            <span class="tag">Cognito</span>
+            <span class="tag tag-aws">Lambda</span><span class="tag tag-aws">API Gateway</span><span class="tag">DynamoDB</span><span class="tag">S3</span><span class="tag">CloudFront</span><span class="tag">Cognito</span>
           </div>
-          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-5-serverless-event-driven" target="_blank" rel="noopener" class="proj-link">
-            View Architecture <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </a>
+          <div class="role-angles">
+            <div class="angle angle--sa"><strong>SA:</strong> Baseline architecture — when to use this vs. containers, when to break out of it</div>
+            <div class="angle angle--se"><strong>SE:</strong> "This is my default 'start simple' recommendation in discovery — deploy in a day, scale to millions"</div>
+          </div>
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-5-serverless-event-driven" target="_blank" rel="noopener" class="proj-link">View Architecture →</a>
         </div>
 
-        <!-- Project 6: Containerized Microservices -->
         <div class="proj-card" data-tags="containers">
           <div class="proj-card-header">
-            <div class="proj-scenario">Containers · Microservices · Entry Level</div>
-            <div class="proj-badges">
-              <span class="badge badge--diff-entry">Entry Level</span>
-            </div>
+            <div class="proj-scenario">Containers · Microservices · Entry-Level</div>
+            <div class="proj-badges"><span class="badge badge--diff-entry">Entry Level</span></div>
           </div>
-          <h3 class="proj-title">Containerized Microservices Platform on AWS</h3>
-          <p class="proj-client"><strong>Focus:</strong> ECS/EKS microservices — service discovery, load balancing, auto-scaling</p>
+          <h3 class="proj-title">Containerized Microservices on AWS</h3>
+          <p class="proj-client"><strong>Focus:</strong> ECS Fargate microservices — service discovery, load balancing, blue-green deploys. When containers beat serverless.</p>
           <div class="proj-reqs">
-            <span class="req-chip">Container orchestration</span>
-            <span class="req-chip">Service mesh</span>
-            <span class="req-chip">Blue-green deploys</span>
-            <span class="req-chip">Zero-downtime</span>
+            <span class="req-chip">Container orchestration</span><span class="req-chip">Service mesh</span><span class="req-chip">Blue-green deploys</span><span class="req-chip">Zero-downtime</span>
           </div>
           <div class="proj-stack">
-            <span class="tag tag-aws">ECS Fargate</span>
-            <span class="tag tag-aws">ECR</span>
-            <span class="tag">ALB</span>
-            <span class="tag">Service Discovery</span>
-            <span class="tag">CodePipeline</span>
+            <span class="tag tag-aws">ECS Fargate</span><span class="tag tag-aws">ECR</span><span class="tag">ALB</span><span class="tag">Service Discovery</span><span class="tag">CodePipeline</span>
           </div>
-          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-6-containerized-microservices" target="_blank" rel="noopener" class="proj-link">
-            View Architecture <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </a>
+          <div class="role-angles">
+            <div class="angle angle--sa"><strong>SA:</strong> Fargate vs. EKS trade-off — Fargate wins when the team has no Kubernetes experience and workloads are predictable</div>
+            <div class="angle angle--se"><strong>SE:</strong> "I use this to show prospects why managed containers remove 60% of the operational overhead vs. self-managed K8s"</div>
+          </div>
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/aws-sa-projects/project-6-containerized-microservices" target="_blank" rel="noopener" class="proj-link">View Architecture →</a>
         </div>
 
-        <!-- E-Commerce Full DevOps -->
         <div class="proj-card" data-tags="ecommerce containers">
           <div class="proj-card-header">
-            <div class="proj-scenario">DevOps · Platform Engineering · 14 Phases</div>
-            <div class="proj-badges">
-              <span class="badge badge--diff-adv">Advanced</span>
-            </div>
+            <div class="proj-scenario">Platform Engineering · 14 Phases · Full DevOps</div>
+            <div class="proj-badges"><span class="badge badge--diff-adv">Advanced</span></div>
           </div>
           <h3 class="proj-title">E-Commerce: Full DevOps Lifecycle on EKS</h3>
-          <p class="proj-client"><strong>Focus:</strong> End-to-end DevOps — EKS + ArgoCD + Istio + Prometheus + Backstage developer portal</p>
+          <p class="proj-client"><strong>Focus:</strong> End-to-end platform engineering — EKS + ArgoCD + Istio + Prometheus + Backstage. What DevOps maturity looks like.</p>
           <div class="proj-reqs">
-            <span class="req-chip">GitOps</span>
-            <span class="req-chip">Service mesh</span>
-            <span class="req-chip">Full observability</span>
-            <span class="req-chip">Developer portal</span>
+            <span class="req-chip">GitOps</span><span class="req-chip">Service mesh</span><span class="req-chip">Full observability</span><span class="req-chip">Developer portal</span>
           </div>
           <div class="proj-stack">
-            <span class="tag tag-aws">EKS</span>
-            <span class="tag">ArgoCD</span>
-            <span class="tag">Istio</span>
-            <span class="tag">Prometheus</span>
-            <span class="tag">Grafana</span>
-            <span class="tag">Backstage</span>
+            <span class="tag tag-aws">EKS</span><span class="tag">ArgoCD</span><span class="tag">Istio</span><span class="tag">Prometheus</span><span class="tag">Grafana</span><span class="tag">Backstage</span>
           </div>
-          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/devops-projects/end-to-end-cicd-eks" target="_blank" rel="noopener" class="proj-link">
-            View Architecture <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </a>
+          <div class="role-angles">
+            <div class="angle angle--sa"><strong>SA:</strong> This is the full DevOps maturity model — I can place any prospect on this path and recommend the next milestone</div>
+            <div class="angle angle--se"><strong>SE:</strong> "This is my 'north star' demo for platform engineering buyers — here's what mature looks like, here's where you are today"</div>
+          </div>
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/devops-projects/end-to-end-cicd-eks" target="_blank" rel="noopener" class="proj-link">View Architecture →</a>
         </div>
 
       </div>
     </div>
   </section>
 
-  <!-- SRE PROJECTS -->
-  <section class="section section-alt" id="sre-projects">
+  <!-- ══════════════════════════════════════════════ -->
+  <!--  SE — SOLUTIONS ENGINEER                       -->
+  <!-- ══════════════════════════════════════════════ -->
+  <section class="section section-alt" id="se">
     <div class="container">
-      <div class="section-header">
-        <div class="section-badge badge--sre">Site Reliability Engineering</div>
-        <h2 class="section-title">SRE &amp; DevOps Projects</h2>
-        <p class="section-sub">Production-grade reliability engineering — observability, incident response, GitOps, security, and cost optimization</p>
+      <div class="role-section-header role-section-header--se">
+        <div class="role-section-pill pill--se">Solutions Engineer</div>
+        <h2 class="section-title">I build what convinces customers.</h2>
+        <p class="section-sub">Every item below is something I can open in a browser during a call. Not slides — working demos and POCs with measurable outcomes. SE work is about showing, not telling.</p>
+        <div class="sa-proof-row">
+          <span class="proof-chip proof-chip--se">Live demos I can show right now</span>
+          <span class="proof-chip proof-chip--se">POCs with real cost/performance data</span>
+          <span class="proof-chip proof-chip--se">Technical depth for enterprise buyers</span>
+          <span class="proof-chip proof-chip--se">Open-source — prospects can fork &amp; run</span>
+        </div>
       </div>
 
-      <div class="sre-filter-row filter-row">
-        <button class="sre-filter-btn filter-btn active" data-sre-filter="all">All</button>
-        <button class="sre-filter-btn filter-btn" data-sre-filter="observability">Observability</button>
-        <button class="sre-filter-btn filter-btn" data-sre-filter="cicd">CI/CD · GitOps</button>
-        <button class="sre-filter-btn filter-btn" data-sre-filter="incident">Incident Response</button>
-        <button class="sre-filter-btn filter-btn" data-sre-filter="security">Security</button>
-        <button class="sre-filter-btn filter-btn" data-sre-filter="chaos">Chaos</button>
-        <button class="sre-filter-btn filter-btn" data-sre-filter="finops">FinOps</button>
-      </div>
+      <div class="se-demo-grid">
 
-      <div class="sre-grid" id="sre-grid">
-
-        <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-1-kubernetes-observability" target="_blank" rel="noopener" class="sre-card" data-sre-tags="observability">
-          <div class="sre-num">01</div>
-          <div class="sre-body">
-            <div class="sre-badge badge--observability">Observability</div>
-            <h4>SRE Observability &amp; SLO Platform</h4>
-            <p>Prometheus + Grafana + OpenTelemetry on EKS. SLO/SLI dashboards, error budget tracking for 50+ services, PagerDuty integration, distributed tracing.</p>
-            <div class="sre-tags">
-              <span class="tag">Prometheus</span><span class="tag">Grafana</span><span class="tag">OpenTelemetry</span><span class="tag">SLOs</span>
-            </div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-2-cicd-gitops" target="_blank" rel="noopener" class="sre-card" data-sre-tags="cicd">
-          <div class="sre-num">02</div>
-          <div class="sre-body">
-            <div class="sre-badge badge--cicd">CI/CD · GitOps</div>
-            <h4>CI/CD GitOps Pipeline</h4>
-            <p>GitHub Actions + ArgoCD GitOps workflow. PR-triggered deployments, environment promotion gates, automatic rollback on SLO breach.</p>
-            <div class="sre-tags">
-              <span class="tag">GitHub Actions</span><span class="tag">ArgoCD</span><span class="tag">GitOps</span><span class="tag">OIDC</span>
-            </div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-3-incident-response-slo" target="_blank" rel="noopener" class="sre-card" data-sre-tags="incident">
-          <div class="sre-num">03</div>
-          <div class="sre-body">
-            <div class="sre-badge badge--incident">Incident Response</div>
-            <h4>SLO-Driven Incident Response</h4>
-            <p>Automated incident detection from SLO burn rates. PagerDuty escalation, runbook automation, MTTR tracking, and blameless postmortem process.</p>
-            <div class="sre-tags">
-              <span class="tag">PagerDuty</span><span class="tag">Runbooks</span><span class="tag">SLOs</span><span class="tag">Lambda</span>
-            </div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-4-iac-terraform-ansible" target="_blank" rel="noopener" class="sre-card" data-sre-tags="cicd">
-          <div class="sre-num">04</div>
-          <div class="sre-body">
-            <div class="sre-badge badge--cicd">IaC</div>
-            <h4>Infrastructure as Code — Terraform + Ansible</h4>
-            <p>Terraform for cloud provisioning + Ansible for configuration management. Immutable infrastructure patterns, drift detection, compliance scanning.</p>
-            <div class="sre-tags">
-              <span class="tag">Terraform</span><span class="tag">Ansible</span><span class="tag">EC2</span>
-            </div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-5-logging-tracing" target="_blank" rel="noopener" class="sre-card" data-sre-tags="observability">
-          <div class="sre-num">05</div>
-          <div class="sre-body">
-            <div class="sre-badge badge--observability">Observability</div>
-            <h4>Centralized Logging &amp; Distributed Tracing</h4>
-            <p>ELK Stack (Elasticsearch, Logstash, Kibana) + OpenTelemetry distributed tracing across microservices. Structured logging, correlation IDs, trace sampling.</p>
-            <div class="sre-tags">
-              <span class="tag">ELK Stack</span><span class="tag">OpenTelemetry</span><span class="tag">Jaeger</span>
-            </div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-6-chaos-engineering" target="_blank" rel="noopener" class="sre-card" data-sre-tags="chaos">
-          <div class="sre-num">06</div>
-          <div class="sre-body">
-            <div class="sre-badge badge--chaos">Chaos Engineering</div>
-            <h4>Chaos Engineering &amp; Resilience Testing</h4>
-            <p>AWS FIS + LitmusChaos experiments. 12 failure modes identified, 40% faster recovery time, validated 99.99% availability. Pod-kill, node-drain, network partition.</p>
-            <div class="sre-tags">
-              <span class="tag">AWS FIS</span><span class="tag">LitmusChaos</span><span class="tag">GameDays</span>
-            </div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-7-cost-optimization-finops" target="_blank" rel="noopener" class="sre-card" data-sre-tags="finops">
-          <div class="sre-num">07</div>
-          <div class="sre-body">
-            <div class="sre-badge badge--finops">FinOps</div>
-            <h4>Cloud Cost Optimization &amp; FinOps</h4>
-            <p>Right-sizing analysis, Savings Plans modeling, Spot Instance strategy, S3 Intelligent-Tiering, per-team budget alerts. Built for pre-sales cost conversations.</p>
-            <div class="sre-tags">
-              <span class="tag">Cost Explorer</span><span class="tag">Savings Plans</span><span class="tag">Spot</span><span class="tag">Budgets</span>
-            </div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-8-gitops-argocd" target="_blank" rel="noopener" class="sre-card" data-sre-tags="cicd">
-          <div class="sre-num">08</div>
-          <div class="sre-body">
-            <div class="sre-badge badge--cicd">GitOps</div>
-            <h4>ArgoCD Progressive Delivery</h4>
-            <p>Canary + blue-green deployments with ArgoCD Rollouts. Automated metric analysis, traffic splitting (5% → 100%), instant rollback on error rate spike.</p>
-            <div class="sre-tags">
-              <span class="tag">ArgoCD</span><span class="tag">Canary</span><span class="tag">Rollouts</span><span class="tag">Prometheus</span>
-            </div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-9-kubernetes-security" target="_blank" rel="noopener" class="sre-card" data-sre-tags="security">
-          <div class="sre-num">09</div>
-          <div class="sre-body">
-            <div class="sre-badge badge--security">Security</div>
-            <h4>Kubernetes Security &amp; Cloud Compliance</h4>
-            <p>RBAC, Pod Security Standards, OPA Gatekeeper, network policies, image scanning, GuardDuty + Security Hub for a simulated healthcare client. 100% audit pass.</p>
-            <div class="sre-tags">
-              <span class="tag">RBAC</span><span class="tag">OPA</span><span class="tag">GuardDuty</span><span class="tag">Security Hub</span>
-            </div>
-          </div>
-        </a>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- LIVE DEMOS -->
-  <section class="section" id="demos">
-    <div class="container">
-      <div class="section-header">
-        <div class="section-badge badge--demo">Pre-Sales · Live Demos</div>
-        <h2 class="section-title">Live Demo Sites</h2>
-        <p class="section-sub">Deployed, interactive demos — built specifically to show in prospect conversations and SE interviews</p>
-      </div>
-
-      <div class="demo-grid">
-
-        <div class="demo-card demo-card--hub">
-          <div class="demo-card-top">
-            <div class="demo-live-dot"></div>
-            <span class="demo-live-label">Live</span>
-          </div>
-          <div class="demo-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <!-- Cloud Career Hub -->
+        <div class="se-demo-card se-demo-card--live">
+          <div class="se-demo-top">
+            <div class="live-indicator"><span class="live-dot"></span>Live Demo</div>
+            <div class="se-demo-type">Full-Stack Platform · Firebase + AI</div>
           </div>
           <h3>Cloud Career Hub</h3>
-          <p>Full-stack platform — Firebase Auth, Gemini AI resume writer, role-based access, SA/SE dual resume toggle, admin-protected pages.</p>
-          <div class="demo-stack">
-            <span class="tag">React</span>
-            <span class="tag">Firebase</span>
-            <span class="tag">Gemini AI</span>
-            <span class="tag">RBAC</span>
+          <p>Production React app with Firebase Auth, Google Gemini AI resume writer, role-based access control, and automated CI/CD. A working example of a cloud-native internal tool.</p>
+          <div class="se-what-i-show">
+            <div class="wiis-label">What I show in a 30-min call:</div>
+            <ul class="wiis-list">
+              <li>Firebase Auth login flow — SSO pattern applicable to any enterprise app</li>
+              <li>Gemini AI integration — how to wire an LLM API into a production workflow</li>
+              <li>RBAC — admin vs. public access, same codebase, zero backend changes</li>
+              <li>gh-pages CI/CD — push to main → live in 60 seconds</li>
+            </ul>
           </div>
-          <p class="demo-pitch">"Here's an example of a cloud-native internal tool I built — Firebase auth, AI integration, role-based access, and automated deployment."</p>
-          <div class="demo-actions">
+          <div class="proj-stack">
+            <span class="tag">React</span><span class="tag">Firebase Auth</span><span class="tag">Gemini AI</span><span class="tag">Vite</span><span class="tag">RBAC</span><span class="tag">GitHub Pages</span>
+          </div>
+          <div class="se-demo-actions">
             <a href="https://denvanholdings-cloud.github.io/sa-career" target="_blank" rel="noopener" class="btn-primary btn-sm">Open Live Demo</a>
             <a href="https://github.com/denvanholdings-cloud/sa-career" target="_blank" rel="noopener" class="btn-ghost btn-sm">GitHub</a>
           </div>
         </div>
 
-        <div class="demo-card demo-card--portfolio">
-          <div class="demo-card-top">
-            <div class="demo-live-dot"></div>
-            <span class="demo-live-label">Live</span>
+        <!-- Serverless Task API POC -->
+        <div class="se-demo-card se-demo-card--poc">
+          <div class="se-demo-top">
+            <div class="poc-indicator">POC</div>
+            <div class="se-demo-type">Cost Optimization · Serverless Architecture</div>
           </div>
-          <div class="demo-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          <h3>Serverless Task API — 90% Cost Reduction POC</h3>
+          <p>Full CRUD REST API on Lambda + DynamoDB — built to prove serverless beats EC2+RDS for this workload. $2.32/month at 1M requests vs. ~$23/month traditional. All source code available for prospects to deploy.</p>
+          <div class="se-what-i-show">
+            <div class="wiis-label">What I show in a 30-min call:</div>
+            <ul class="wiis-list">
+              <li>Live API calls — POST, GET, PATCH, DELETE working in Postman</li>
+              <li>CloudWatch metrics — latency, error rate, cold start data</li>
+              <li>Cost breakdown — $1/M API Gateway vs. $3.50/M, arm64 20% cheaper than x86</li>
+              <li>GitHub Actions CI/CD — OIDC auth, zero long-lived credentials</li>
+            </ul>
+          </div>
+          <div class="proj-stack">
+            <span class="tag tag-aws">Lambda (arm64)</span><span class="tag tag-aws">API Gateway</span><span class="tag">DynamoDB</span><span class="tag">X-Ray</span><span class="tag">GitHub Actions</span><span class="tag">OIDC</span>
+          </div>
+          <div class="poc-metrics">
+            <div class="poc-metric"><span>$2.32</span><label>/month at 1M reqs</label></div>
+            <div class="poc-metric"><span>90%</span><label>cheaper than EC2+RDS</label></div>
+            <div class="poc-metric"><span>0</span><label>long-lived credentials</label></div>
+          </div>
+          <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/serverless-task-api" target="_blank" rel="noopener" class="proj-link">View POC Code →</a>
+        </div>
+
+        <!-- HA WordPress POC -->
+        <div class="se-demo-card se-demo-card--poc">
+          <div class="se-demo-top">
+            <div class="poc-indicator">POC</div>
+            <div class="se-demo-type">High Availability · Terraform IaC</div>
+          </div>
+          <h3>HA WordPress — Zero-Outage Infrastructure POC</h3>
+          <p>Designed for a client losing $8K per outage. Full Terraform codebase — prospects can clone and deploy the entire infrastructure in one command. This is the kind of POC that wins architecture reviews.</p>
+          <div class="se-what-i-show">
+            <div class="wiis-label">What I show in a 30-min call:</div>
+            <ul class="wiis-list">
+              <li>Terraform plan output — complete infrastructure visible before a single resource is created</li>
+              <li>Multi-AZ failover — RDS auto-promotes standby in &lt;2 minutes</li>
+              <li>WAF rules — OWASP Top 10 blocked, SQLi protection active</li>
+              <li>CloudWatch dashboards — p99 latency, 5xx rate, RDS connections live</li>
+            </ul>
+          </div>
+          <div class="proj-stack">
+            <span class="tag tag-aws">EC2 ASG</span><span class="tag tag-aws">RDS Multi-AZ</span><span class="tag">ALB</span><span class="tag">CloudFront</span><span class="tag">WAF</span><span class="tag">Terraform</span>
+          </div>
+          <div class="poc-metrics">
+            <div class="poc-metric"><span>$0</span><label>outage cost (was $8K)</label></div>
+            <div class="poc-metric"><span>99.9%</span><label>availability SLO</label></div>
+            <div class="poc-metric"><span>1 cmd</span><label>terraform apply</label></div>
+          </div>
+          <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/ha-wordpress-terraform" target="_blank" rel="noopener" class="proj-link">View POC Code →</a>
+        </div>
+
+        <!-- Portfolio Site -->
+        <div class="se-demo-card se-demo-card--live">
+          <div class="se-demo-top">
+            <div class="live-indicator"><span class="live-dot"></span>Live Demo</div>
+            <div class="se-demo-type">Personal Brand · Custom Domain · GitHub Pages</div>
           </div>
           <h3>jenellavan.com — Personal Portfolio</h3>
-          <p>Personal portfolio site — dark theme, typed animation, responsive design, blog, filterable projects, and printable SA/SE resume. Custom domain on GitHub Pages.</p>
-          <div class="demo-stack">
-            <span class="tag">HTML/CSS/JS</span>
-            <span class="tag">GitHub Pages</span>
-            <span class="tag">Custom Domain</span>
+          <p>Full portfolio site — dark theme, typed animation, responsive design, blog, and printable SA/SE/Pre-Sales resume. Built and deployed end-to-end: design, code, GitHub Pages, custom domain. Shows I can ship client-facing products.</p>
+          <div class="se-what-i-show">
+            <div class="wiis-label">What this proves to an SE employer:</div>
+            <ul class="wiis-list">
+              <li>I can build and ship polished client-facing products independently</li>
+              <li>Frontend competency — not just backend/infra — I can build full demo experiences</li>
+              <li>Custom domain, CI/CD pipeline, 100% uptime on GitHub Pages</li>
+            </ul>
           </div>
-          <p class="demo-pitch">"Designed and shipped a polished client-facing site end-to-end — from UX to DNS to deployment pipeline."</p>
-          <div class="demo-actions">
+          <div class="proj-stack">
+            <span class="tag">HTML/CSS/JS</span><span class="tag">GitHub Pages</span><span class="tag">Custom Domain</span><span class="tag">AOS</span>
+          </div>
+          <div class="se-demo-actions">
             <a href="https://jenellavan.com" target="_blank" rel="noopener" class="btn-primary btn-sm">Open Live Site</a>
             <a href="https://github.com/vanessa9373/portfolio" target="_blank" rel="noopener" class="btn-ghost btn-sm">GitHub</a>
           </div>
         </div>
 
-        <div class="demo-card demo-card--infra">
-          <div class="demo-card-top">
-            <div class="demo-live-dot"></div>
-            <span class="demo-live-label">Live</span>
-          </div>
-          <div class="demo-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-          </div>
-          <h3>Cloud Infrastructure Portfolio</h3>
-          <p>Dedicated site for the 3 Terraform infrastructure projects and 19 DevOps labs — all source code, architecture diagrams, and deployment guides on GitHub.</p>
-          <div class="demo-stack">
-            <span class="tag">Terraform</span>
-            <span class="tag">AWS</span>
-            <span class="tag">19 Labs</span>
-          </div>
-          <p class="demo-pitch">"All infrastructure is fully reproducible from code — clone the repo, run terraform apply, done."</p>
-          <div class="demo-actions">
-            <a href="https://vanessa9373.github.io/my-portfolio-projects/" target="_blank" rel="noopener" class="btn-primary btn-sm">View Site</a>
-            <a href="https://github.com/vanessa9373/my-portfolio-projects" target="_blank" rel="noopener" class="btn-ghost btn-sm">GitHub</a>
-          </div>
-        </div>
+      </div>
 
+      <!-- SE Technical Depth -->
+      <div class="se-technical-depth">
+        <div class="std-header">
+          <h3>SRE &amp; DevOps Technical Depth</h3>
+          <p>SE roles require deep enough technical knowledge to answer hard questions in the room. These 9 SRE projects prove that depth — observability, incident response, chaos engineering, security, FinOps.</p>
+        </div>
+        <div class="sre-grid" id="sre-grid">
+
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-1-kubernetes-observability" target="_blank" rel="noopener" class="sre-card" data-sre-tags="observability">
+            <div class="sre-num">01</div>
+            <div class="sre-body">
+              <div class="sre-badge badge--observability">Observability</div>
+              <h4>SRE Observability &amp; SLO Platform</h4>
+              <p>Prometheus + Grafana + OpenTelemetry on EKS. SLO/SLI dashboards, error budget tracking, PagerDuty integration.</p>
+              <div class="sre-tags"><span class="tag">Prometheus</span><span class="tag">Grafana</span><span class="tag">OpenTelemetry</span><span class="tag">SLOs</span></div>
+            </div>
+          </a>
+
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-2-cicd-gitops" target="_blank" rel="noopener" class="sre-card" data-sre-tags="cicd">
+            <div class="sre-num">02</div>
+            <div class="sre-body">
+              <div class="sre-badge badge--cicd">CI/CD · GitOps</div>
+              <h4>CI/CD GitOps Pipeline</h4>
+              <p>GitHub Actions + ArgoCD. PR-triggered deployments, environment promotion gates, automatic rollback on SLO breach.</p>
+              <div class="sre-tags"><span class="tag">GitHub Actions</span><span class="tag">ArgoCD</span><span class="tag">OIDC</span></div>
+            </div>
+          </a>
+
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-3-incident-response-slo" target="_blank" rel="noopener" class="sre-card" data-sre-tags="incident">
+            <div class="sre-num">03</div>
+            <div class="sre-body">
+              <div class="sre-badge badge--incident">Incident Response</div>
+              <h4>SLO-Driven Incident Response</h4>
+              <p>Automated detection from SLO burn rates. PagerDuty escalation, runbook automation, MTTR tracking.</p>
+              <div class="sre-tags"><span class="tag">PagerDuty</span><span class="tag">Runbooks</span><span class="tag">SLOs</span></div>
+            </div>
+          </a>
+
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-4-iac-terraform-ansible" target="_blank" rel="noopener" class="sre-card" data-sre-tags="cicd">
+            <div class="sre-num">04</div>
+            <div class="sre-body">
+              <div class="sre-badge badge--cicd">IaC</div>
+              <h4>Terraform + Ansible IaC</h4>
+              <p>Terraform provisioning + Ansible configuration management. Immutable infrastructure, drift detection, compliance scanning.</p>
+              <div class="sre-tags"><span class="tag">Terraform</span><span class="tag">Ansible</span><span class="tag">EC2</span></div>
+            </div>
+          </a>
+
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-5-logging-tracing" target="_blank" rel="noopener" class="sre-card" data-sre-tags="observability">
+            <div class="sre-num">05</div>
+            <div class="sre-body">
+              <div class="sre-badge badge--observability">Observability</div>
+              <h4>Centralized Logging &amp; Distributed Tracing</h4>
+              <p>ELK Stack + OpenTelemetry distributed tracing. Structured logging, correlation IDs, trace sampling.</p>
+              <div class="sre-tags"><span class="tag">ELK Stack</span><span class="tag">OpenTelemetry</span><span class="tag">Jaeger</span></div>
+            </div>
+          </a>
+
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-6-chaos-engineering" target="_blank" rel="noopener" class="sre-card" data-sre-tags="chaos">
+            <div class="sre-num">06</div>
+            <div class="sre-body">
+              <div class="sre-badge badge--chaos">Chaos Engineering</div>
+              <h4>Chaos Engineering &amp; Resilience Testing</h4>
+              <p>AWS FIS + LitmusChaos. 12 failure modes, 40% faster recovery, 99.99% availability validated.</p>
+              <div class="sre-tags"><span class="tag">AWS FIS</span><span class="tag">LitmusChaos</span><span class="tag">GameDays</span></div>
+            </div>
+          </a>
+
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-7-cost-optimization-finops" target="_blank" rel="noopener" class="sre-card" data-sre-tags="finops">
+            <div class="sre-num">07</div>
+            <div class="sre-body">
+              <div class="sre-badge badge--finops">FinOps</div>
+              <h4>Cloud Cost Optimization &amp; FinOps</h4>
+              <p>Right-sizing, Savings Plans modeling, Spot strategy, S3 Intelligent-Tiering. Built for pre-sales cost conversations.</p>
+              <div class="sre-tags"><span class="tag">Cost Explorer</span><span class="tag">Savings Plans</span><span class="tag">Spot</span></div>
+            </div>
+          </a>
+
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-8-gitops-argocd" target="_blank" rel="noopener" class="sre-card" data-sre-tags="cicd">
+            <div class="sre-num">08</div>
+            <div class="sre-body">
+              <div class="sre-badge badge--cicd">GitOps</div>
+              <h4>ArgoCD Progressive Delivery</h4>
+              <p>Canary + blue-green with ArgoCD Rollouts. Automated metric analysis, traffic splitting 5% → 100%, instant rollback.</p>
+              <div class="sre-tags"><span class="tag">ArgoCD</span><span class="tag">Canary</span><span class="tag">Prometheus</span></div>
+            </div>
+          </a>
+
+          <a href="https://github.com/vanessa9373/portfolio-devops-project/tree/main/projects/sre-projects/sre-project-9-kubernetes-security" target="_blank" rel="noopener" class="sre-card" data-sre-tags="security">
+            <div class="sre-num">09</div>
+            <div class="sre-body">
+              <div class="sre-badge badge--security">Security</div>
+              <h4>Kubernetes Security &amp; Compliance</h4>
+              <p>RBAC, Pod Security Standards, OPA Gatekeeper, network policies, GuardDuty + Security Hub. 100% audit pass.</p>
+              <div class="sre-tags"><span class="tag">RBAC</span><span class="tag">OPA</span><span class="tag">GuardDuty</span></div>
+            </div>
+          </a>
+
+        </div>
       </div>
     </div>
   </section>
 
+  <!-- ══════════════════════════════════════════════ -->
+  <!--  PRE-SALES                                     -->
+  <!-- ══════════════════════════════════════════════ -->
+  <section class="section" id="presales">
+    <div class="container">
+      <div class="role-section-header role-section-header--ps">
+        <div class="role-section-pill pill--ps">Pre-Sales SE</div>
+        <h2 class="section-title">I speak in business outcomes, not just architecture.</h2>
+        <p class="section-sub">Pre-sales is about helping a prospect understand the value of a solution — in their language. Here's how I frame technical work as business value, and a tool I built to prove it.</p>
+        <div class="sa-proof-row">
+          <span class="proof-chip proof-chip--ps">Discovery &amp; qualification</span>
+          <span class="proof-chip proof-chip--ps">ROI quantification</span>
+          <span class="proof-chip proof-chip--ps">TCO analysis</span>
+          <span class="proof-chip proof-chip--ps">Objection handling</span>
+          <span class="proof-chip proof-chip--ps">Stakeholder presentations</span>
+        </div>
+      </div>
+
+      <!-- Value Stories -->
+      <h3 class="subsection-title">Value Stories — How I Frame Technical Work for Business Buyers</h3>
+      <div class="value-stories-grid">
+
+        <div class="value-story">
+          <div class="vs-situation">
+            <div class="vs-label">Situation</div>
+            <p>Retail client running WordPress on a single EC2 — 3 outages in Q4, $8,000 revenue loss per outage, no auto-scaling, no backups.</p>
+          </div>
+          <div class="vs-arrow">→</div>
+          <div class="vs-solution">
+            <div class="vs-label">Solution I proposed</div>
+            <p>Multi-AZ Auto Scaling Group behind ALB, RDS Multi-AZ with auto-failover, CloudFront CDN, WAF for security.</p>
+          </div>
+          <div class="vs-arrow">→</div>
+          <div class="vs-outcome">
+            <div class="vs-label">Business Outcome</div>
+            <div class="vs-metrics">
+              <span>$24K/year outage cost → $0</span>
+              <span>20% infrastructure cost reduction</span>
+              <span>99.9% availability SLO achieved</span>
+              <span>Deployed in 1 day with Terraform</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="value-story">
+          <div class="vs-situation">
+            <div class="vs-label">Situation</div>
+            <p>Team running REST API on EC2 + RDS — paying $23/month at low traffic, scaling manually, on-call for server patches.</p>
+          </div>
+          <div class="vs-arrow">→</div>
+          <div class="vs-solution">
+            <div class="vs-label">Solution I proposed</div>
+            <p>Serverless migration — Lambda on Graviton2/arm64, API Gateway HTTP API, DynamoDB PAY_PER_REQUEST, GitHub Actions CI/CD.</p>
+          </div>
+          <div class="vs-arrow">→</div>
+          <div class="vs-outcome">
+            <div class="vs-label">Business Outcome</div>
+            <div class="vs-metrics">
+              <span>$23/mo → $2.32/mo (90% reduction)</span>
+              <span>Zero on-call for server maintenance</span>
+              <span>Scales to 1M+ requests automatically</span>
+              <span>Deploys on every git push</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="value-story">
+          <div class="vs-situation">
+            <div class="vs-label">Situation</div>
+            <p>FinTech company with analysts querying production databases — audit findings, compliance violations, slow live systems.</p>
+          </div>
+          <div class="vs-arrow">→</div>
+          <div class="vs-solution">
+            <div class="vs-label">Solution I proposed</div>
+            <p>S3 data lake with Glue ETL, Athena for SQL queries, Lake Formation for row/column-level security and data masking.</p>
+          </div>
+          <div class="vs-arrow">→</div>
+          <div class="vs-outcome">
+            <div class="vs-label">Business Outcome</div>
+            <div class="vs-metrics">
+              <span>Zero prod queries from analysts</span>
+              <span>Audit finding resolved</span>
+              <span>PCI-DSS &amp; SOC 2 compliant</span>
+              <span>Analyst queries &lt;30s vs. hours</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ROI Calculator -->
+      <div class="roi-calculator" id="roi-calc">
+        <div class="roi-calc-header">
+          <div class="role-section-pill pill--ps" style="margin-bottom:12px">Interactive Tool</div>
+          <h3>Cloud Cost Savings Estimator</h3>
+          <p>A pre-sales tool I built — the kind of value calculator I'd put in front of a prospect during a discovery call to make cost conversations concrete.</p>
+        </div>
+        <div class="roi-calc-body">
+          <div class="roi-inputs">
+            <div class="roi-input-group">
+              <label>Current monthly AWS spend ($)</label>
+              <input type="number" id="currentSpend" placeholder="e.g. 5000" min="0">
+            </div>
+            <div class="roi-input-group">
+              <label>Downtime hours per month</label>
+              <input type="number" id="downtimeHours" placeholder="e.g. 4" min="0" step="0.5">
+            </div>
+            <div class="roi-input-group">
+              <label>Revenue per hour ($)</label>
+              <input type="number" id="revenuePerHour" placeholder="e.g. 10000" min="0">
+            </div>
+            <div class="roi-input-group">
+              <label>Workload type</label>
+              <select id="workloadType">
+                <option value="general">General (web app, API)</option>
+                <option value="serverless">Serverless-ready (event-driven)</option>
+                <option value="kubernetes">Container / Kubernetes</option>
+                <option value="data">Data / Analytics</option>
+              </select>
+            </div>
+            <button class="btn-primary" onclick="calculateROI()">Calculate Savings</button>
+          </div>
+          <div class="roi-results" id="roi-results">
+            <div class="roi-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40" style="color:var(--text-muted)"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              <p>Enter your numbers and click Calculate to see your estimated savings.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Discovery Questions -->
+      <div class="discovery-section">
+        <h3 class="subsection-title">Discovery Questions I Ask in Pre-Sales Calls</h3>
+        <p class="section-sub" style="text-align:left;max-width:100%;margin-bottom:28px;">These are the questions I use to qualify, uncover pain, and position the right solution — not a script, but a framework I've built through real technical conversations.</p>
+        <div class="discovery-grid">
+          <div class="discovery-card">
+            <div class="discovery-icon">🔍</div>
+            <h4>Qualification</h4>
+            <ul>
+              <li>"What's driving this conversation — a specific incident, a cost review, or a strategic initiative?"</li>
+              <li>"Who owns the infrastructure decision — engineering, finance, or the CTO?"</li>
+              <li>"What does success look like in 90 days?"</li>
+            </ul>
+          </div>
+          <div class="discovery-card">
+            <div class="discovery-icon">⚡</div>
+            <h4>Pain Uncovering</h4>
+            <ul>
+              <li>"How often do you have unplanned downtime, and what does an hour of outage cost you?"</li>
+              <li>"What's your current deployment frequency — and how long does a rollback take?"</li>
+              <li>"Are your engineers spending more time keeping the lights on than shipping features?"</li>
+            </ul>
+          </div>
+          <div class="discovery-card">
+            <div class="discovery-icon">💡</div>
+            <h4>Technical Fit</h4>
+            <ul>
+              <li>"Are your workloads bursty or steady-state? That changes the architecture significantly."</li>
+              <li>"Do you have compliance requirements — SOC 2, PCI-DSS, HIPAA? That affects the design from day one."</li>
+              <li>"What's your team's Kubernetes experience? I want to propose what they can actually operate."</li>
+            </ul>
+          </div>
+          <div class="discovery-card">
+            <div class="discovery-icon">📊</div>
+            <h4>Value &amp; ROI</h4>
+            <ul>
+              <li>"If we could cut your AWS bill 20-30% while improving availability — what would that free up for the business?"</li>
+              <li>"Have you run a TCO analysis on serverless vs. your current EC2 setup?"</li>
+              <li>"What would it mean for your team to deploy on every PR merge with zero manual steps?"</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
   <!-- LABS -->
-  <section class="section" id="labs">
+  <section class="section section-alt" id="labs">
     <div class="container">
       <div class="section-header">
         <div class="section-badge badge--sre">19 Hands-On Labs</div>
@@ -591,207 +735,35 @@
       </div>
 
       <div class="labs-grid" id="labs-grid">
-
-        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/01-cloud-migration" target="_blank" rel="noopener" class="lab-card" data-lab-tags="foundation terraform">
-          <div class="lab-num">01</div>
-          <div class="lab-body">
-            <div class="lab-phase-badge phase-badge--foundation">Foundation</div>
-            <h4>Enterprise Cloud Migration</h4>
-            <p>On-prem to AWS — ECS Fargate, Aurora PostgreSQL, ALB, Terraform IaC. 35% cost reduction, 99.95% uptime.</p>
-            <div class="lab-tags"><span class="tag">Terraform</span><span class="tag">ECS Fargate</span><span class="tag">Aurora</span><span class="tag">Docker</span></div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/02-multi-cloud-architecture" target="_blank" rel="noopener" class="lab-card" data-lab-tags="foundation terraform">
-          <div class="lab-num">02</div>
-          <div class="lab-body">
-            <div class="lab-phase-badge phase-badge--foundation">Foundation</div>
-            <h4>Multi-Cloud Architecture</h4>
-            <p>AWS + Azure + GCP cross-cloud design with Terraform modules per provider, Transit Gateway, VNet peering.</p>
-            <div class="lab-tags"><span class="tag">AWS</span><span class="tag">Azure</span><span class="tag">GCP</span><span class="tag">Terraform</span></div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/03-terraform-modules" target="_blank" rel="noopener" class="lab-card" data-lab-tags="foundation terraform">
-          <div class="lab-num">03</div>
-          <div class="lab-body">
-            <div class="lab-phase-badge phase-badge--foundation">Foundation</div>
-            <h4>Reusable Terraform Modules</h4>
-            <p>Multi-cloud module library across AWS, Azure, GCP. Versioning, testing, input validation, remote state backends.</p>
-            <div class="lab-tags"><span class="tag">Terraform</span><span class="tag">IaC</span><span class="tag">Modules</span></div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/04-iac-terraform-ansible" target="_blank" rel="noopener" class="lab-card" data-lab-tags="foundation terraform">
-          <div class="lab-num">04</div>
-          <div class="lab-body">
-            <div class="lab-phase-badge phase-badge--foundation">Foundation</div>
-            <h4>Terraform + Ansible IaC</h4>
-            <p>Infrastructure provisioning with Terraform + configuration management with Ansible playbooks for EC2 fleets.</p>
-            <div class="lab-tags"><span class="tag">Terraform</span><span class="tag">Ansible</span><span class="tag">EC2</span></div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/05-cicd-kubernetes" target="_blank" rel="noopener" class="lab-card" data-lab-tags="foundation kubernetes">
-          <div class="lab-num">05</div>
-          <div class="lab-body">
-            <div class="lab-phase-badge phase-badge--foundation">Foundation</div>
-            <h4>CI/CD + Kubernetes</h4>
-            <p>Full CI/CD pipeline deploying to EKS. GitHub Actions → Docker build → ECR push → kubectl rollout.</p>
-            <div class="lab-tags"><span class="tag">Kubernetes</span><span class="tag">EKS</span><span class="tag">GitHub Actions</span><span class="tag">ECR</span></div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/06-cicd-gitops" target="_blank" rel="noopener" class="lab-card" data-lab-tags="foundation">
-          <div class="lab-num">06</div>
-          <div class="lab-body">
-            <div class="lab-phase-badge phase-badge--foundation">Foundation</div>
-            <h4>GitOps with GitHub Actions</h4>
-            <p>GitOps workflow — Git is the source of truth. PR-triggered deployments, environment promotion, rollback via revert.</p>
-            <div class="lab-tags"><span class="tag">GitOps</span><span class="tag">GitHub Actions</span><span class="tag">OIDC</span></div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/07-cicd-argocd-rollouts" target="_blank" rel="noopener" class="lab-card" data-lab-tags="foundation kubernetes">
-          <div class="lab-num">07</div>
-          <div class="lab-body">
-            <div class="lab-phase-badge phase-badge--foundation">Foundation</div>
-            <h4>ArgoCD Progressive Delivery</h4>
-            <p>Canary + blue-green deployments with ArgoCD Rollouts. Automated analysis, traffic splitting, instant rollback.</p>
-            <div class="lab-tags"><span class="tag">ArgoCD</span><span class="tag">Canary</span><span class="tag">Kubernetes</span></div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/08-kubernetes-observability" target="_blank" rel="noopener" class="lab-card" data-lab-tags="operations kubernetes">
-          <div class="lab-num">08</div>
-          <div class="lab-body">
-            <div class="lab-phase-badge phase-badge--operations">Operations</div>
-            <h4>Kubernetes Observability</h4>
-            <p>Prometheus + Grafana stack on EKS. Node Exporter, kube-state-metrics, custom dashboards, PagerDuty alerting.</p>
-            <div class="lab-tags"><span class="tag">Prometheus</span><span class="tag">Grafana</span><span class="tag">EKS</span></div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/09-sre-observability-slo" target="_blank" rel="noopener" class="lab-card" data-lab-tags="operations sre">
-          <div class="lab-num">09</div>
-          <div class="lab-body">
-            <div class="lab-phase-badge phase-badge--operations">Operations</div>
-            <h4>SRE Observability + SLOs</h4>
-            <p>SLO/SLI/error budget platform. Availability, latency, and throughput SLOs with burn-rate alerting and budget dashboards.</p>
-            <div class="lab-tags"><span class="tag">SRE</span><span class="tag">SLOs</span><span class="tag">Error Budgets</span></div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/10-logging-tracing-pipeline" target="_blank" rel="noopener" class="lab-card" data-lab-tags="operations sre">
-          <div class="lab-num">10</div>
-          <div class="lab-body">
-            <div class="lab-phase-badge phase-badge--operations">Operations</div>
-            <h4>Logging + Distributed Tracing</h4>
-            <p>ELK Stack (Elasticsearch, Logstash, Kibana) + OpenTelemetry distributed tracing across microservices.</p>
-            <div class="lab-tags"><span class="tag">ELK Stack</span><span class="tag">OpenTelemetry</span><span class="tag">Jaeger</span></div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/11-incident-response-slo" target="_blank" rel="noopener" class="lab-card" data-lab-tags="operations sre">
-          <div class="lab-num">11</div>
-          <div class="lab-body">
-            <div class="lab-phase-badge phase-badge--operations">Operations</div>
-            <h4>SLO-Driven Incident Response</h4>
-            <p>Automated incident detection from SLO burn, PagerDuty escalation, runbook automation, and MTTR tracking.</p>
-            <div class="lab-tags"><span class="tag">SRE</span><span class="tag">PagerDuty</span><span class="tag">Runbooks</span></div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/12-incident-response-postmortem" target="_blank" rel="noopener" class="lab-card" data-lab-tags="operations sre">
-          <div class="lab-num">12</div>
-          <div class="lab-body">
-            <div class="lab-phase-badge phase-badge--operations">Operations</div>
-            <h4>Blameless Postmortem Process</h4>
-            <p>Auto-remediation Lambda functions, blameless postmortem templates, and incident timeline reconstruction tooling.</p>
-            <div class="lab-tags"><span class="tag">Lambda</span><span class="tag">Postmortem</span><span class="tag">Auto-remediation</span></div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/13-chaos-engineering-aws" target="_blank" rel="noopener" class="lab-card" data-lab-tags="maturity">
-          <div class="lab-num">13</div>
-          <div class="lab-body">
-            <div class="lab-phase-badge phase-badge--maturity">Maturity</div>
-            <h4>Chaos Engineering on AWS</h4>
-            <p>AWS Fault Injection Simulator — EC2 termination, RDS failover, network latency injection experiments.</p>
-            <div class="lab-tags"><span class="tag">AWS FIS</span><span class="tag">Chaos</span><span class="tag">Resilience</span></div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/14-chaos-engineering-litmus" target="_blank" rel="noopener" class="lab-card" data-lab-tags="maturity kubernetes">
-          <div class="lab-num">14</div>
-          <div class="lab-body">
-            <div class="lab-phase-badge phase-badge--maturity">Maturity</div>
-            <h4>LitmusChaos on Kubernetes</h4>
-            <p>Pod-kill, node-drain, and network-partition experiments on EKS with LitmusChaos. Validates K8s resilience patterns.</p>
-            <div class="lab-tags"><span class="tag">LitmusChaos</span><span class="tag">Kubernetes</span><span class="tag">EKS</span></div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/15-security-compliance" target="_blank" rel="noopener" class="lab-card" data-lab-tags="maturity security">
-          <div class="lab-num">15</div>
-          <div class="lab-body">
-            <div class="lab-phase-badge phase-badge--maturity">Maturity</div>
-            <h4>Security &amp; Compliance as Code</h4>
-            <p>IAM least-privilege policies, SCPs, GuardDuty, AWS Config rules, and Security Hub findings automation.</p>
-            <div class="lab-tags"><span class="tag">IAM</span><span class="tag">GuardDuty</span><span class="tag">Security Hub</span><span class="tag">Config</span></div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/16-kubernetes-security" target="_blank" rel="noopener" class="lab-card" data-lab-tags="maturity kubernetes security">
-          <div class="lab-num">16</div>
-          <div class="lab-body">
-            <div class="lab-phase-badge phase-badge--maturity">Maturity</div>
-            <h4>Kubernetes Security Hardening</h4>
-            <p>RBAC, Pod Security Standards, OPA Gatekeeper policies, network policies, secrets encryption, image scanning.</p>
-            <div class="lab-tags"><span class="tag">RBAC</span><span class="tag">OPA</span><span class="tag">Network Policy</span></div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/17-serverless-data-pipeline" target="_blank" rel="noopener" class="lab-card" data-lab-tags="maturity">
-          <div class="lab-num">17</div>
-          <div class="lab-body">
-            <div class="lab-phase-badge phase-badge--maturity">Maturity</div>
-            <h4>Serverless Data Pipeline</h4>
-            <p>Event-driven pipeline: S3 trigger → Lambda transform → DynamoDB + SNS notifications. Zero servers.</p>
-            <div class="lab-tags"><span class="tag">Lambda</span><span class="tag">S3</span><span class="tag">DynamoDB</span><span class="tag">SNS</span></div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/18-cloud-cost-optimization" target="_blank" rel="noopener" class="lab-card" data-lab-tags="maturity">
-          <div class="lab-num">18</div>
-          <div class="lab-body">
-            <div class="lab-phase-badge phase-badge--maturity">Maturity</div>
-            <h4>FinOps &amp; Cost Optimization</h4>
-            <p>Right-sizing analysis, Savings Plans modeling, S3 Intelligent-Tiering, Spot Instance strategy, budget alerts.</p>
-            <div class="lab-tags"><span class="tag">FinOps</span><span class="tag">Cost Explorer</span><span class="tag">Savings Plans</span></div>
-          </div>
-        </a>
-
-        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/19-devops-mastery-ecommerce" target="_blank" rel="noopener" class="lab-card" data-lab-tags="maturity kubernetes terraform sre">
-          <div class="lab-num">19</div>
-          <div class="lab-body">
-            <div class="lab-phase-badge phase-badge--maturity">Maturity</div>
-            <h4>DevOps Mastery — E-Commerce on EKS</h4>
-            <p>End-to-end production platform: EKS + ArgoCD + Prometheus + Grafana + Chaos Engineering. Full DevOps lifecycle.</p>
-            <div class="lab-tags"><span class="tag">EKS</span><span class="tag">ArgoCD</span><span class="tag">Prometheus</span><span class="tag">Full Stack</span></div>
-          </div>
-        </a>
-
+        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/01-cloud-migration" target="_blank" rel="noopener" class="lab-card" data-lab-tags="foundation terraform"><div class="lab-num">01</div><div class="lab-body"><div class="lab-phase-badge phase-badge--foundation">Foundation</div><h4>Enterprise Cloud Migration</h4><p>On-prem to AWS — ECS Fargate, Aurora PostgreSQL, ALB. 35% cost reduction, 99.95% uptime.</p><div class="lab-tags"><span class="tag">Terraform</span><span class="tag">ECS Fargate</span><span class="tag">Aurora</span></div></div></a>
+        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/02-multi-cloud-architecture" target="_blank" rel="noopener" class="lab-card" data-lab-tags="foundation terraform"><div class="lab-num">02</div><div class="lab-body"><div class="lab-phase-badge phase-badge--foundation">Foundation</div><h4>Multi-Cloud Architecture</h4><p>AWS + Azure + GCP cross-cloud design with Terraform modules per provider.</p><div class="lab-tags"><span class="tag">AWS</span><span class="tag">Azure</span><span class="tag">GCP</span><span class="tag">Terraform</span></div></div></a>
+        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/03-terraform-modules" target="_blank" rel="noopener" class="lab-card" data-lab-tags="foundation terraform"><div class="lab-num">03</div><div class="lab-body"><div class="lab-phase-badge phase-badge--foundation">Foundation</div><h4>Reusable Terraform Modules</h4><p>Multi-cloud module library. Versioning, testing, input validation, remote state backends.</p><div class="lab-tags"><span class="tag">Terraform</span><span class="tag">IaC</span><span class="tag">Modules</span></div></div></a>
+        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/04-iac-terraform-ansible" target="_blank" rel="noopener" class="lab-card" data-lab-tags="foundation terraform"><div class="lab-num">04</div><div class="lab-body"><div class="lab-phase-badge phase-badge--foundation">Foundation</div><h4>Terraform + Ansible IaC</h4><p>Terraform provisioning + Ansible configuration management for EC2 fleets.</p><div class="lab-tags"><span class="tag">Terraform</span><span class="tag">Ansible</span><span class="tag">EC2</span></div></div></a>
+        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/05-cicd-kubernetes" target="_blank" rel="noopener" class="lab-card" data-lab-tags="foundation kubernetes"><div class="lab-num">05</div><div class="lab-body"><div class="lab-phase-badge phase-badge--foundation">Foundation</div><h4>CI/CD + Kubernetes</h4><p>GitHub Actions → Docker build → ECR push → kubectl rollout on EKS.</p><div class="lab-tags"><span class="tag">Kubernetes</span><span class="tag">EKS</span><span class="tag">GitHub Actions</span></div></div></a>
+        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/06-cicd-gitops" target="_blank" rel="noopener" class="lab-card" data-lab-tags="foundation"><div class="lab-num">06</div><div class="lab-body"><div class="lab-phase-badge phase-badge--foundation">Foundation</div><h4>GitOps with GitHub Actions</h4><p>PR-triggered deployments, environment promotion, rollback via revert.</p><div class="lab-tags"><span class="tag">GitOps</span><span class="tag">GitHub Actions</span><span class="tag">OIDC</span></div></div></a>
+        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/07-cicd-argocd-rollouts" target="_blank" rel="noopener" class="lab-card" data-lab-tags="foundation kubernetes"><div class="lab-num">07</div><div class="lab-body"><div class="lab-phase-badge phase-badge--foundation">Foundation</div><h4>ArgoCD Progressive Delivery</h4><p>Canary + blue-green with ArgoCD Rollouts. Automated analysis, traffic splitting.</p><div class="lab-tags"><span class="tag">ArgoCD</span><span class="tag">Canary</span><span class="tag">Kubernetes</span></div></div></a>
+        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/08-kubernetes-observability" target="_blank" rel="noopener" class="lab-card" data-lab-tags="operations kubernetes"><div class="lab-num">08</div><div class="lab-body"><div class="lab-phase-badge phase-badge--operations">Operations</div><h4>Kubernetes Observability</h4><p>Prometheus + Grafana on EKS. Node Exporter, kube-state-metrics, custom dashboards.</p><div class="lab-tags"><span class="tag">Prometheus</span><span class="tag">Grafana</span><span class="tag">EKS</span></div></div></a>
+        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/09-sre-observability-slo" target="_blank" rel="noopener" class="lab-card" data-lab-tags="operations sre"><div class="lab-num">09</div><div class="lab-body"><div class="lab-phase-badge phase-badge--operations">Operations</div><h4>SRE Observability + SLOs</h4><p>SLO/SLI/error budget platform with burn-rate alerting and budget dashboards.</p><div class="lab-tags"><span class="tag">SRE</span><span class="tag">SLOs</span><span class="tag">Error Budgets</span></div></div></a>
+        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/10-logging-tracing-pipeline" target="_blank" rel="noopener" class="lab-card" data-lab-tags="operations sre"><div class="lab-num">10</div><div class="lab-body"><div class="lab-phase-badge phase-badge--operations">Operations</div><h4>Logging + Distributed Tracing</h4><p>ELK Stack + OpenTelemetry distributed tracing across microservices.</p><div class="lab-tags"><span class="tag">ELK Stack</span><span class="tag">OpenTelemetry</span><span class="tag">Jaeger</span></div></div></a>
+        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/11-incident-response-slo" target="_blank" rel="noopener" class="lab-card" data-lab-tags="operations sre"><div class="lab-num">11</div><div class="lab-body"><div class="lab-phase-badge phase-badge--operations">Operations</div><h4>SLO-Driven Incident Response</h4><p>Automated detection from SLO burn, PagerDuty escalation, runbook automation.</p><div class="lab-tags"><span class="tag">SRE</span><span class="tag">PagerDuty</span><span class="tag">Runbooks</span></div></div></a>
+        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/12-incident-response-postmortem" target="_blank" rel="noopener" class="lab-card" data-lab-tags="operations sre"><div class="lab-num">12</div><div class="lab-body"><div class="lab-phase-badge phase-badge--operations">Operations</div><h4>Blameless Postmortem Process</h4><p>Auto-remediation Lambda, postmortem templates, incident timeline reconstruction.</p><div class="lab-tags"><span class="tag">Lambda</span><span class="tag">Postmortem</span><span class="tag">Auto-remediation</span></div></div></a>
+        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/13-chaos-engineering-aws" target="_blank" rel="noopener" class="lab-card" data-lab-tags="maturity"><div class="lab-num">13</div><div class="lab-body"><div class="lab-phase-badge phase-badge--maturity">Maturity</div><h4>Chaos Engineering on AWS</h4><p>AWS FIS — EC2 termination, RDS failover, network latency injection experiments.</p><div class="lab-tags"><span class="tag">AWS FIS</span><span class="tag">Chaos</span><span class="tag">Resilience</span></div></div></a>
+        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/14-chaos-engineering-litmus" target="_blank" rel="noopener" class="lab-card" data-lab-tags="maturity kubernetes"><div class="lab-num">14</div><div class="lab-body"><div class="lab-phase-badge phase-badge--maturity">Maturity</div><h4>LitmusChaos on Kubernetes</h4><p>Pod-kill, node-drain, network-partition on EKS. Validates K8s resilience patterns.</p><div class="lab-tags"><span class="tag">LitmusChaos</span><span class="tag">Kubernetes</span><span class="tag">EKS</span></div></div></a>
+        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/15-security-compliance" target="_blank" rel="noopener" class="lab-card" data-lab-tags="maturity security"><div class="lab-num">15</div><div class="lab-body"><div class="lab-phase-badge phase-badge--maturity">Maturity</div><h4>Security &amp; Compliance as Code</h4><p>IAM least-privilege, SCPs, GuardDuty, Config rules, Security Hub automation.</p><div class="lab-tags"><span class="tag">IAM</span><span class="tag">GuardDuty</span><span class="tag">Security Hub</span></div></div></a>
+        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/16-kubernetes-security" target="_blank" rel="noopener" class="lab-card" data-lab-tags="maturity kubernetes security"><div class="lab-num">16</div><div class="lab-body"><div class="lab-phase-badge phase-badge--maturity">Maturity</div><h4>Kubernetes Security Hardening</h4><p>RBAC, Pod Security Standards, OPA Gatekeeper, network policies, image scanning.</p><div class="lab-tags"><span class="tag">RBAC</span><span class="tag">OPA</span><span class="tag">Network Policy</span></div></div></a>
+        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/17-serverless-data-pipeline" target="_blank" rel="noopener" class="lab-card" data-lab-tags="maturity"><div class="lab-num">17</div><div class="lab-body"><div class="lab-phase-badge phase-badge--maturity">Maturity</div><h4>Serverless Data Pipeline</h4><p>S3 trigger → Lambda transform → DynamoDB + SNS. Event-driven, zero servers.</p><div class="lab-tags"><span class="tag">Lambda</span><span class="tag">S3</span><span class="tag">DynamoDB</span></div></div></a>
+        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/18-cloud-cost-optimization" target="_blank" rel="noopener" class="lab-card" data-lab-tags="maturity"><div class="lab-num">18</div><div class="lab-body"><div class="lab-phase-badge phase-badge--maturity">Maturity</div><h4>FinOps &amp; Cost Optimization</h4><p>Right-sizing, Savings Plans, S3 Intelligent-Tiering, Spot strategy, budget alerts.</p><div class="lab-tags"><span class="tag">FinOps</span><span class="tag">Cost Explorer</span><span class="tag">Savings Plans</span></div></div></a>
+        <a href="https://github.com/vanessa9373/my-portfolio-projects/tree/main/labs/19-devops-mastery-ecommerce" target="_blank" rel="noopener" class="lab-card" data-lab-tags="maturity kubernetes terraform sre"><div class="lab-num">19</div><div class="lab-body"><div class="lab-phase-badge phase-badge--maturity">Maturity</div><h4>DevOps Mastery — E-Commerce on EKS</h4><p>End-to-end: EKS + ArgoCD + Prometheus + Grafana + Chaos Engineering.</p><div class="lab-tags"><span class="tag">EKS</span><span class="tag">ArgoCD</span><span class="tag">Prometheus</span></div></div></a>
       </div>
     </div>
   </section>
 
   <!-- CTA -->
-  <section class="section section-alt cta-section">
+  <section class="section cta-section">
     <div class="container">
       <div class="cta-box">
-        <h2>Open to SA · SE · Pre-Sales Roles</h2>
-        <p>Solutions Architect · Solutions Engineer · Pre-Sales SE · Available now · Remote-ready · Open to relocation</p>
+        <h2>Let's talk about the role.</h2>
+        <p>Open to SA · SE · Pre-Sales SE positions. Seattle, WA · Remote-ready · Open to relocation.</p>
         <div class="cta-actions">
           <a href="https://jenellavan.com#contact" class="btn-primary">Get in Touch</a>
           <a href="https://jenellavan.com/resume.html" class="btn-ghost">View Resume</a>
@@ -805,23 +777,14 @@
   <footer class="footer">
     <div class="container footer-inner">
       <div class="footer-brand">
-        <svg class="logo-badge" width="22" height="22" viewBox="0 0 28 28" fill="none">
-          <rect width="28" height="28" rx="6" fill="rgba(139,92,246,0.12)" stroke="rgba(139,92,246,0.28)" stroke-width="1"/>
-          <text x="14" y="19" text-anchor="middle" fill="#8B5CF6" font-size="11" font-weight="800" font-family="monospace">VA</text>
-        </svg>
+        <svg class="logo-badge" width="22" height="22" viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="6" fill="rgba(139,92,246,0.12)" stroke="rgba(139,92,246,0.28)" stroke-width="1"/><text x="14" y="19" text-anchor="middle" fill="#8B5CF6" font-size="11" font-weight="800" font-family="monospace">VA</text></svg>
         <span>Vanessa Awo</span>
       </div>
       <p class="footer-copy">&copy; 2026 Vanessa Awo · <a href="https://jenellavan.com">jenellavan.com</a></p>
       <div class="footer-socials">
-        <a href="https://www.linkedin.com/in/vanessajen/" target="_blank" rel="noopener" aria-label="LinkedIn">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
-        </a>
-        <a href="https://github.com/vanessa9373" target="_blank" rel="noopener" aria-label="GitHub">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-        </a>
-        <a href="mailto:vanessa93730@gmail.com" aria-label="Email">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        </a>
+        <a href="https://www.linkedin.com/in/vanessajen/" target="_blank" rel="noopener" aria-label="LinkedIn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+        <a href="https://github.com/vanessa9373" target="_blank" rel="noopener" aria-label="GitHub"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg></a>
+        <a href="mailto:vanessa93730@gmail.com" aria-label="Email"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></a>
       </div>
     </div>
   </footer>
